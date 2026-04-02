@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Annotation profile for notificationService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -9,12 +10,20 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
+        <module name="complianceservice" />
+        <module name="auditservice" />
         <module name="notificationService" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="complianceservice (1)" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="auditservice" options="-parameters" />
+      <module name="complianceservice" options="-parameters" />
+      <module name="complianceservice (1)" options="-parameters" />
       <module name="notificationService" options="-parameters" />
     </option>
   </component>
