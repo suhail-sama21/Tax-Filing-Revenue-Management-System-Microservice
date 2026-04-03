@@ -49,7 +49,7 @@ public class ComplianceServiceImpl implements ComplianceService {
                 .orElseThrow(() -> new NoSuchElementException("Compliance not found"));
         return mapToResponse(record);
     }
-
+// compliance to audit ->
     @Override
     public ComplianceResponse updateCompliance(Long id, UpdateComplianceRequest request) {
         ComplianceRecord record = complianceRecordRepository.findById(id)

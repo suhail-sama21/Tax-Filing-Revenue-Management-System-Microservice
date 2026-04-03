@@ -36,7 +36,7 @@ public class UserService {
 
     public UserDTO findByUsername(String username) {
         User user = userRepository
-                .findByUsername(username)
+                .findByName(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found"));
         return modelMapper.map(user, UserDTO.class);

@@ -53,12 +53,12 @@ public class Taxpayer {
     @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaxFiling> taxFilings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TaxpayerDocument> taxpayerDocuments = new HashSet<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RevenueRecord> revenueRecords = new ArrayList<>();
+//    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private Set<TaxpayerDocument> taxpayerDocuments = new HashSet<>();
+//
+//    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<RevenueRecord> revenueRecords = new ArrayList<>();
 }
