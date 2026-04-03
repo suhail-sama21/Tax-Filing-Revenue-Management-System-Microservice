@@ -49,12 +49,12 @@ public class TaxFiling {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "filing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> payments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "filing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FilingDocument> filingDocuments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "filing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
+//    @OneToMany(mappedBy = "filing", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Payment> payments = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "filing", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<FilingDocument> filingDocuments = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "filing", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
 }
