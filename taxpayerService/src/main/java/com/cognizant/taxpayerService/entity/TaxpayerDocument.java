@@ -1,5 +1,6 @@
 package com.cognizant.taxpayerService.entity;
 
+
 import com.cognizant.taxpayerService.entity.entityEnum.DocTypeTaxpayer;
 import com.cognizant.taxpayerService.entity.entityEnum.VerificationStatus;
 import jakarta.persistence.*;
@@ -8,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.*;
+
 
 @Entity
 @Table(name = "taxpayer_document")

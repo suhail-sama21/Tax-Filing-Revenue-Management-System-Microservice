@@ -8,7 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface TaxpayerRepository extends JpaRepository<Taxpayer, Long> {
-    boolean existsByTaxpayerIdNumber(String taxpayerIdNumber);
-    Optional<Taxpayer> findByTaxpayerIdNumber(String taxpayerIdNumber);
-    Optional<Taxpayer> findByUser(com.cognizant.taxpayerService.entity.User user);
+
+    // MICROSERVICE CHANGE: Changed from findByUser to findByUserEmail
+    Optional<Taxpayer> findByUserEmail(String userEmail);
+
 }

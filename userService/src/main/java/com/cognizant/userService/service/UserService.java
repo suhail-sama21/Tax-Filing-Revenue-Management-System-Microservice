@@ -22,16 +22,22 @@ public class UserService {
 
     public UserDTO registerUser(UserDTO userDto) {
 
-          User user = modelMapper.map(userDto,User.class);
+        User user = modelMapper.map(userDto, User.class);
 
         // Encrypt password
 
         String encryptedPassword = passwordEncoder.encode(user.getPasswordHash());
         user.setPasswordHash(encryptedPassword);
         user.setRole(UserRole.TAXPAYER);
-        User savedUser=userRepository.save(user);
+        User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDTO.class);
 
+    }
+    // ADD THIS to UserService.java
+    public UserDTO findByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return modelMapper.map(user, UserDTO.class);
     }
 
     public UserDTO findByUsername(String username) {

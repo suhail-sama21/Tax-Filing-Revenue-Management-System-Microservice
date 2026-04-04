@@ -1,4 +1,4 @@
-package com.cognizant.taxpayerService.dto.requestdto;
+package com.cognizant.taxpayerService.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateTaxpayerProfileRequestDto {
-// testing some structure
+    // testing some structure
     @NotBlank(message = "Address cannot be empty")
     @Size(max = 500, message = "Address must not exceed 500 characters")
     private String address;

@@ -15,6 +15,7 @@
         <option value="$PROJECT_DIR$/service-registry/pom.xml" />
         <option value="$PROJECT_DIR$/auditLogService/pom.xml" />
         <option value="$PROJECT_DIR$/taxpayerService/pom.xml" />
+        <option value="$PROJECT_DIR$/notificationService/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

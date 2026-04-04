@@ -1,19 +1,20 @@
 package com.cognizant.taxpayerService.service.impl;
 
+import com.cognizant.taxpayerService.client.AuditServiceClient;
+import com.cognizant.taxpayerService.client.UserServiceClient;
 import com.cognizant.taxpayerService.dao.TaxpayerDocumentRepository;
 import com.cognizant.taxpayerService.dao.TaxpayerRepository;
-import com.cognizant.taxpayerService.dao.UserRepository;
-import com.cognizant.taxpayerService.dto.responsedto.TaxpayerDocumentResponseDto;
-import com.cognizant.taxpayerService.dto.responsedto.TaxpayerProfileResponseDto;
-import com.cognizant.taxpayerService.dto.requestdto.UpdateTaxpayerProfileRequestDto;
+import com.cognizant.taxpayerService.dto.UserDTO;
+import com.cognizant.taxpayerService.dto.UpdateTaxpayerProfileRequestDto;
+import com.cognizant.taxpayerService.dto.TaxpayerDocumentResponseDto;
+import com.cognizant.taxpayerService.dto.TaxpayerProfileResponseDto;
 import com.cognizant.taxpayerService.entity.Taxpayer;
 import com.cognizant.taxpayerService.entity.TaxpayerDocument;
-import com.cognizant.taxpayerService.entity.User;
 import com.cognizant.taxpayerService.entity.entityEnum.DocTypeTaxpayer;
 import com.cognizant.taxpayerService.entity.entityEnum.VerificationStatus;
-import com.cognizant.taxpayerService.service.AuditLogService;
 import com.cognizant.taxpayerService.service.TaxpayerProfileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,19 +23,23 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TaxpayerProfileServiceImpl implements TaxpayerProfileService {
 
-    private final UserRepository userRepository;
+    // Feign Clients for external microservices
+    private final UserServiceClient userServiceClient;
+    private final AuditServiceClient auditServiceClient;
+
+    // Local Repositories
     private final TaxpayerRepository taxpayerRepository;
     private final TaxpayerDocumentRepository taxpayerDocumentRepository;
-    private final AuditLogService auditLogService;
 
     @Override
     public TaxpayerProfileResponseDto getProfile(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        Taxpayer taxpayer = taxpayerRepository.findByUser(user)
-                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
+
+        // Fetch User data over HTTP via Feign
+        UserDTO user = userServiceClient.getUserByEmail(email);
 
         return TaxpayerProfileResponseDto.builder()
                 .taxpayerId(taxpayer.getId())
@@ -51,24 +56,21 @@ public class TaxpayerProfileServiceImpl implements TaxpayerProfileService {
     @Override
     @Transactional
     public TaxpayerProfileResponseDto updateProfile(String email, UpdateTaxpayerProfileRequestDto request) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        Taxpayer taxpayer = taxpayerRepository.findByUser(user)
-                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
 
         taxpayer.setAddress(request.getAddress());
         taxpayer.setContactInfo(request.getContactInfo());
         taxpayerRepository.save(taxpayer);
-        auditLogService.record("TAXPAYER_PROFILE_UPDATE", "profile_update/" + taxpayer.getId());
-        return getProfile(email); // Return updated profile
+
+        // Microservice Call: Log event to Audit Service
+        auditServiceClient.recordLog("TAXPAYER_PROFILE_UPDATE", "profile_update/" + taxpayer.getId());
+
+        return getProfile(email);
     }
 
     @Override
     public List<TaxpayerDocumentResponseDto> getDocuments(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        Taxpayer taxpayer = taxpayerRepository.findByUser(user)
-                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
 
         return taxpayerDocumentRepository.findByTaxpayer(taxpayer).stream()
                 .map(this::convertToDto)
@@ -79,22 +81,17 @@ public class TaxpayerProfileServiceImpl implements TaxpayerProfileService {
     @Transactional
     public TaxpayerDocumentResponseDto uploadDocument(String email, String fileUri, DocTypeTaxpayer docType) {
         if (fileUri == null || fileUri.trim().isEmpty()) {
-            throw new RuntimeException("File URI is required");
+            throw new IllegalArgumentException("File URI is required");
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        Taxpayer taxpayer = taxpayerRepository.findByUser(user)
-                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
 
-        // Check if document type already exists
         boolean exists = taxpayerDocumentRepository.findByTaxpayer(taxpayer).stream()
                 .anyMatch(doc -> doc.getDocType().equals(docType));
         if (exists) {
-            throw new RuntimeException("Document of type " + docType + " already exists. Delete the existing one to upload again.");
+            throw new IllegalStateException("Document of type " + docType + " already exists.");
         }
 
-        // Save document entity with the provided URI
         TaxpayerDocument document = TaxpayerDocument.builder()
                 .taxpayer(taxpayer)
                 .docType(docType)
@@ -103,93 +100,91 @@ public class TaxpayerProfileServiceImpl implements TaxpayerProfileService {
                 .build();
 
         TaxpayerDocument savedDocument = taxpayerDocumentRepository.save(document);
-        auditLogService.record("UPLOAD_DOCUMENT", "upload_document/" + taxpayer.getId());
+
+        // Microservice Call: Log event to Audit Service
+        auditServiceClient.recordLog("UPLOAD_DOCUMENT", "upload_document/" + taxpayer.getId());
+
         return convertToDto(savedDocument);
     }
 
     @Override
     @Transactional
     public void deleteDocument(String email, Long documentId) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        Taxpayer taxpayer = taxpayerRepository.findByUser(user)
-                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
+        TaxpayerDocument document = getDocumentById(documentId);
 
-        TaxpayerDocument document = taxpayerDocumentRepository.findById(documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
-
-        if (!document.getTaxpayer().equals(taxpayer)) {
-            throw new RuntimeException("Document does not belong to this taxpayer");
-        }
+        validateDocumentOwnership(document, taxpayer);
 
         if (document.getVerificationStatus() != VerificationStatus.Rejected) {
-            throw new RuntimeException("Document can only be deleted if status is Rejected. Current status: " + document.getVerificationStatus());
+            throw new IllegalStateException("Document can only be deleted if status is Rejected.");
         }
 
-        // No file deletion needed since we're storing links, not files
         taxpayerDocumentRepository.delete(document);
-        auditLogService.record("DELETE_DOCUMENT", "delete_document/" + taxpayer.getId());
+
+        // Microservice Call: Log event to Audit Service
+        auditServiceClient.recordLog("DELETE_DOCUMENT", "delete_document/" + taxpayer.getId());
     }
 
     @Override
     @Transactional
     public TaxpayerDocumentResponseDto updateDocument(String email, Long documentId, String fileUri) {
         if (fileUri == null || fileUri.trim().isEmpty()) {
-            throw new RuntimeException("File URI is required");
+            throw new IllegalArgumentException("File URI is required");
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        Taxpayer taxpayer = taxpayerRepository.findByUser(user)
-                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
+        TaxpayerDocument document = getDocumentById(documentId);
 
-        TaxpayerDocument document = taxpayerDocumentRepository.findById(documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
-
-        if (!document.getTaxpayer().equals(taxpayer)) {
-            throw new RuntimeException("Document does not belong to this taxpayer");
-        }
+        validateDocumentOwnership(document, taxpayer);
 
         if (document.getVerificationStatus() == VerificationStatus.Rejected) {
-            throw new RuntimeException("Cannot update a rejected document. Please delete and upload again.");
+            throw new IllegalStateException("Cannot update a rejected document. Please delete and upload again.");
         }
 
-        // Update document with new URI
         document.setFileUri(fileUri);
-        document.setVerificationStatus(VerificationStatus.Pending); // Reset to pending after update
+        document.setVerificationStatus(VerificationStatus.Pending);
 
         TaxpayerDocument updatedDocument = taxpayerDocumentRepository.save(document);
-        auditLogService.record("DOCUMENT_UPDATED", "document_updated/" + taxpayer.getId());
+
+        // Microservice Call: Log event to Audit Service
+        auditServiceClient.recordLog("DOCUMENT_UPDATED", "document_updated/" + taxpayer.getId());
+
         return convertToDto(updatedDocument);
     }
 
     @Override
     @Transactional
     public TaxpayerDocumentResponseDto verifyDocumentStatus(String email, Long documentId, VerificationStatus verificationStatus) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        Taxpayer taxpayer = getTaxpayerByEmail(email);
+        TaxpayerDocument document = getDocumentById(documentId);
 
-        if (user.getRole() != com.cognizant.taxpayerService.entity.entityEnum.UserRole.OFFICER
-                && user.getRole() != com.cognizant.taxpayerService.entity.entityEnum.UserRole.ADMINISTRATOR) {
-            throw new RuntimeException("Only officers or administrators can verify documents");
-        }
-
-        TaxpayerDocument document = taxpayerDocumentRepository.findById(documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
-
-        if (verificationStatus == null) {
-            throw new RuntimeException("Verification status is required");
-        }
-
-        if (verificationStatus == VerificationStatus.Pending) {
-            throw new RuntimeException("Document cannot be set to Pending by verification action");
-        }
+        validateDocumentOwnership(document, taxpayer);
 
         document.setVerificationStatus(verificationStatus);
+        TaxpayerDocument updatedDocument = taxpayerDocumentRepository.save(document);
 
-        TaxpayerDocument savedDocument = taxpayerDocumentRepository.save(document);
-        auditLogService.record("DOCUMENT_VERIFICATION", "verify_document/" + document.getId());
-        return convertToDto(savedDocument);
+        // Microservice Call: Log event to Audit Service
+        auditServiceClient.recordLog("DOCUMENT_VERIFIED", "Status changed to " + verificationStatus + " for doc: " + documentId);
+
+        return convertToDto(updatedDocument);
+    }
+
+    // --- Helper Methods to keep code DRY ---
+
+    private Taxpayer getTaxpayerByEmail(String email) {
+        return taxpayerRepository.findByUserEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("Taxpayer not found for email: " + email));
+    }
+
+    private TaxpayerDocument getDocumentById(Long documentId) {
+        return taxpayerDocumentRepository.findById(documentId)
+                .orElseThrow(() -> new NoSuchElementException("Document not found with ID: " + documentId));
+    }
+
+    private void validateDocumentOwnership(TaxpayerDocument document, Taxpayer taxpayer) {
+        if (!document.getTaxpayer().getId().equals(taxpayer.getId())) {
+            throw new SecurityException("Document does not belong to this taxpayer");
+        }
     }
 
     private TaxpayerDocumentResponseDto convertToDto(TaxpayerDocument document) {

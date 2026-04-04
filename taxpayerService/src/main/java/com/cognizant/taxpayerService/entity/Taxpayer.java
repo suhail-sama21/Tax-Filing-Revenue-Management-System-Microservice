@@ -11,27 +11,30 @@ import java.util.*;
 
 @Entity
 @Table(name = "taxpayer")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Taxpayer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "taxpayer_id")
     private Long id;
 
-    // Owning side of 1:1 with User
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", unique = true, nullable = false)
-    private User user;
+    // MICROSERVICE CHANGE: Replaced the User object with just the email string
+    @Column(name = "user_email", unique = true, nullable = false, length = 255)
+    private String userEmail;
 
     @Column(name = "name", nullable = false, length = 200)
     private String name;
 
     @Column(name = "taxpayer_id_number", nullable = false, unique = true, length = 11)
-    private String taxpayerIdNumber; // 11-digit unique ID
+    private String taxpayerIdNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 30)
-    private TaxpayerType type; // Citizen/Business
+    private TaxpayerType type;
 
     @Column(name = "address", columnDefinition = "text")
     private String address;
@@ -47,15 +50,5 @@ public class Taxpayer {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TaxFiling> taxFilings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TaxpayerDocument> taxpayerDocuments = new HashSet<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RevenueRecord> revenueRecords = new ArrayList<>();
+    // ... Keep your OneToMany mappings for Filings, Documents, etc. ...
 }

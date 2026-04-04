@@ -1,4 +1,4 @@
-package com.cognizant.taxpayerService.dto.responsedto;
+package com.cognizant.taxpayerService.dto;
 
 import com.cognizant.taxpayerService.entity.entityEnum.DocTypeTaxpayer;
 import com.cognizant.taxpayerService.entity.entityEnum.VerificationStatus;

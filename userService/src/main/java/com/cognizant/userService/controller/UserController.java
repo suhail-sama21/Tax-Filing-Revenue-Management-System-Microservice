@@ -22,6 +22,14 @@ public class UserController {
 
         return ResponseEntity.ok(userDto);
     }
+    // ADD THIS to UserController.java in User Service
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+        // Change this from findByUsername to findByEmail!
+        UserDTO userDto = userService.findByEmail(email);
+        return ResponseEntity.ok(userDto);
+    }
+
 
     @PostMapping("/register")
     public UserDTO registerUser(@RequestBody UserDTO userDto)
