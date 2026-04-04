@@ -8,8 +8,8 @@
 		<version>4.0.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.cognizant.notificationService</groupId>
-	<artifactId>notificationService</artifactId>
+	<groupId>com.cognizant.taxpayerService</groupId>
+	<artifactId>taxpayerService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>
