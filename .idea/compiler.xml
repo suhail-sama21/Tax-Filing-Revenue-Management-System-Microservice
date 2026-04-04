@@ -9,16 +9,6 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-        </processorPath>
-        <module name="notificationService" />
-      </profile>
-      <profile name="Annotation profile for notificationService" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
         <module name="reportingService" />
         <module name="taxpayerService" />
@@ -27,13 +17,14 @@
         <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
-        <module name="notificationService (1) (com.cognizant.notificationService)" />
         <module name="service-registry" />
         <module name="userService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="complianceservice (1)" target="21" />
+      <module name="notificationService" target="21" />
+      <module name="notificationService (1) (com.cognizant.notificationService)" target="21" />
       <module name="revenueService" target="21" />
     </bytecodeTargetLevel>
   </component>
