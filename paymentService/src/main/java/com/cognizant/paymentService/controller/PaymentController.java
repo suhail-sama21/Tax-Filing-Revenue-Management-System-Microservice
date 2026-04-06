@@ -51,4 +51,9 @@ public class PaymentController {
     public RevenueDashboardResponse getRevenueDashboard() {
         return paymentService.getRevenueDashboard();
     }
+    @GetMapping("/{paymentId}")
+    public PaymentResponseDto getPaymentById(@PathVariable Long paymentId) {
+        log.info("START: Fetching payment ID: {}", paymentId);
+        return paymentService.getPaymentById(paymentId);
+    }
 }
