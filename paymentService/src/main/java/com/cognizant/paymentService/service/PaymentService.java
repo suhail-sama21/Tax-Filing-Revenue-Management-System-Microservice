@@ -18,4 +18,5 @@ public interface PaymentService {
     PaymentResponseDto retryPayment(Long oldPaymentId, PaymentMethod newMethod);
     List<PaymentResponseDto> getPaymentsByTaxpayer(Long taxpayerId);
     PaymentResponseDto makePayment(Long filingId, PaymentMethod method, BigDecimal amount, StatusBasic status);
+    PaymentResponseDto getPaymentById(Long paymentId);
 }

@@ -78,4 +78,10 @@ public class TaxFilingService {
                 .submittedDate(filing.getSubmittedDate())
                 .build();
     }
+    public TaxFilingResponseDTO getFilingById(Long filingId) {
+        log.info("Fetching filing by ID: {}", filingId);
+        TaxFiling filing = taxFilingRepository.findById(filingId)
+                .orElseThrow(() -> new RuntimeException("Filing not found"));
+        return mapToDTO(filing);
+    }
 }
