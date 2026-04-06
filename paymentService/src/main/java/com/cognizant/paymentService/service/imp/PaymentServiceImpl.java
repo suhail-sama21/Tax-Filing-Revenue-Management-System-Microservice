@@ -1,19 +1,19 @@
-package com.cognizant.paymentService.service.impl;
+package com.cognizant.paymentService.service.imp;
 
-import com.cognizant.taxease.dao.PaymentRepository;
-import com.cognizant.taxease.dao.RevenueRecordRepository;
-import com.cognizant.taxease.dao.TaxFilingRepository;
-import com.cognizant.taxease.dto.responsedto.PaymentMetricsResponse;
-import com.cognizant.taxease.dto.responsedto.PaymentResponseDto;
-import com.cognizant.taxease.dto.responsedto.RevenueDashboardResponse;
-import com.cognizant.taxease.entity.Payment;
-import com.cognizant.taxease.entity.RevenueRecord;
-import com.cognizant.taxease.entity.TaxFiling;
-import com.cognizant.taxease.entity.entityEnum.PaymentMethod;
-import com.cognizant.taxease.entity.entityEnum.StatusBasic;
-import com.cognizant.taxease.service.AuditLogService;
-import com.cognizant.taxease.service.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.cognizant.paymentService.client.TaxFilingClient;
+import com.cognizant.paymentService.dto.requestdto.*;
+import com.cognizant.paymentService.dto.responsedto.*;
+
+import com.cognizant.paymentService.dto.responsedto.PaymentResponseDto;
+import com.cognizant.paymentService.entity.Payment;
+import com.cognizant.paymentService.entity.RevenueRecord;
+import com.cognizant.paymentService.entity.entityEnum.PaymentMethod;
+import com.cognizant.paymentService.entity.entityEnum.StatusBasic;
+import com.cognizant.paymentService.dao.PaymentRepository;
+import com.cognizant.paymentService.dao.RevenueRecordRepository;
+import com.cognizant.paymentService.service.PaymentService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,45 +22,47 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
-
-    @Autowired
-    private TaxFilingRepository taxFilingRepository;
-
-    @Autowired
-    private RevenueRecordRepository revenueRecordRepository;
-
-    @Autowired
-    private AuditLogService auditLogService;
+    private final PaymentRepository paymentRepository;
+    private final RevenueRecordRepository revenueRecordRepository;
+    private final TaxFilingClient taxFilingClient;
 
     @Override
     @Transactional
     public PaymentResponseDto makePayment(Long filingId, PaymentMethod method, BigDecimal amount, StatusBasic status) {
-        TaxFiling filing = taxFilingRepository.findById(filingId)
-                .orElseThrow(() -> new RuntimeException("Filing not found"));
+        log.info("Processing payment for filing: {}", filingId);
 
+        // 1. Fetch Filing via Feign to get the Taxpayer ID securely!
+        TaxFilingDto filing;
+        try {
+            filing = taxFilingClient.getFilingById(filingId);
+        } catch (Exception e) {
+            throw new RuntimeException("Filing ID " + filingId + " not found in Tax Filing Service");
+        }
+
+        // 2. Save Payment with BOTH IDs
         Payment payment = Payment.builder()
-                .filing(filing)
+                .filingId(filingId)
+                .taxpayerId(filing.getTaxpayerId())
                 .method(method)
                 .amount(amount)
-                .status(status)
+                .status(status != null ? status : StatusBasic.Completed)
                 .build();
 
         payment = paymentRepository.save(payment);
 
-        if (status == StatusBasic.Completed) {
+        // 3. Record Revenue if Successful
+        if (payment.getStatus() == StatusBasic.Completed) {
             RevenueRecord revenueRecord = RevenueRecord.builder()
-                    .taxpayer(filing.getTaxpayer())
+                    .taxpayerId(filing.getTaxpayerId())
                     .payment(payment)
                     .amount(amount)
                     .status(StatusBasic.Completed)
                     .build();
             revenueRecordRepository.save(revenueRecord);
-
-            auditLogService.record("PAYMENT_CREATE", "payments/" + payment.getId());
         }
 
         return mapToDto(payment);
@@ -68,8 +70,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentResponseDto> getPaymentsByTaxpayer(Long taxpayerId) {
-        List<Payment> payments = paymentRepository.findByFiling_Taxpayer_Id(taxpayerId);
-        return payments.stream()
+        return paymentRepository.findByTaxpayerId(taxpayerId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
@@ -84,12 +85,12 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RuntimeException("Only failed payments can be retried");
         }
 
-        auditLogService.record("PAYMENT_RETRY", "payments/" + oldPaymentId);
+        // Make a new payment attempt
         return makePayment(
-                oldPayment.getFiling().getId(),
+                oldPayment.getFilingId(),
                 newMethod,
                 oldPayment.getAmount(),
-                StatusBasic.Completed // Assuming success for the retry
+                StatusBasic.Completed
         );
     }
 
@@ -117,11 +118,11 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    // Helper method to map Payment entity to PaymentResponseDto
     private PaymentResponseDto mapToDto(Payment payment) {
         return PaymentResponseDto.builder()
                 .id(payment.getId())
-                .filingId(payment.getFiling().getId())
+                .filingId(payment.getFilingId())
+                .taxpayerId(payment.getTaxpayerId())
                 .amount(payment.getAmount())
                 .method(payment.getMethod())
                 .status(payment.getStatus())

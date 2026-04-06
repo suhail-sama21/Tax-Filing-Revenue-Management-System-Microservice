@@ -1,56 +1,42 @@
 package com.cognizant.paymentService.entity;
 
+
 import com.cognizant.paymentService.entity.entityEnum.PaymentMethod;
 import com.cognizant.paymentService.entity.entityEnum.StatusBasic;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
 
 @Entity
-@Table(name = "payment", indexes = { @Index(name = "idx_payment_filing", columnList = "filing_id") })
+@Table(name = "payment")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "filing_id", nullable = false)
-    private TaxFiling filing;
+    @Column(nullable = false)
+    private Long filingId;
 
-    @Column(name = "amount", nullable = false, precision = 14, scale = 2)
+    @Column(nullable = false)
+    private Long taxpayerId; // Denormalized for fast lookups!
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod method;
+
+    @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "method", nullable = false, length = 30)
-    private PaymentMethod method;
+    @Column(nullable = false)
+    private StatusBasic status;
 
     @CreationTimestamp
-    @Column(name = "date", nullable = false, updatable = false)
+    @Column(updatable = false)
     private Instant date;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
-    private StatusBasic status = StatusBasic.Pending;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RevenueRecord> revenueRecords = new ArrayList<>();
-
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
 }

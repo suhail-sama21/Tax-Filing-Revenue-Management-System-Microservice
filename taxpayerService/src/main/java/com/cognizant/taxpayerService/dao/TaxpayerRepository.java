@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface TaxpayerRepository extends JpaRepository<Taxpayer, Long> {
 
     // MICROSERVICE CHANGE: Changed from findByUser to findByUserEmail
-    Optional<Taxpayer> findByUserEmail(String userEmail);
+    Optional<Taxpayer> findByUserId(Long ID);
+    boolean existsByTaxpayerIdNumber(String taxpayerIdNumber);
 
 }

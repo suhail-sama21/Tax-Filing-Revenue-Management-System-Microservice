@@ -17,12 +17,12 @@ public class FilingDocument {
     @Column(name = "document_id")
     private Long id;
 
+    // Hard relationship because they live in the same DB
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "filing_id", nullable = false)
     private TaxFiling filing;
 
-    // Add enums when ready: docType, verificationStatus
-    @Column(name = "file_url", nullable = false)
+    @Column(name = "file_url", nullable = false, columnDefinition = "text")
     private String fileUrl;
 
     @CreationTimestamp

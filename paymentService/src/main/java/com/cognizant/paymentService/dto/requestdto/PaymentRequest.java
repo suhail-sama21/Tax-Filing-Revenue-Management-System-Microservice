@@ -1,7 +1,7 @@
 package com.cognizant.paymentService.dto.requestdto;
 
-import com.cognizant.taxease.entity.entityEnum.PaymentMethod;
-import com.cognizant.taxease.entity.entityEnum.StatusBasic;
+import com.cognizant.paymentService.entity.entityEnum.PaymentMethod;
+import com.cognizant.paymentService.entity.entityEnum.StatusBasic;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -23,12 +23,10 @@ public class PaymentRequest {
     @NotNull(message = "Payment method is required")
     private PaymentMethod method;
 
-    @NotNull(message = "Payment amount is required")
-    @Positive(message = "Payment amount must be greater than zero")
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be strictly positive")
     private BigDecimal amount;
 
-    // Optional: The frontend might send this, but usually, your backend
-    // Service layer should set the initial status (e.g., StatusBasic.PENDING)
-    // automatically so users can't force a "COMPLETED" status themselves!
+    // Optional: The frontend might send this, but usually your backend sets it.
     private StatusBasic status;
 }

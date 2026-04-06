@@ -1,16 +1,11 @@
 package com.cognizant.taxpayerService.entity;
 
-
-import com.cognizant.taxpayerService.entity.entityEnum.DocTypeTaxpayer;
-import com.cognizant.taxpayerService.entity.entityEnum.VerificationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.*;
-
 
 @Entity
 @Table(name = "taxpayer_document")
@@ -26,16 +21,14 @@ public class TaxpayerDocument {
     @JoinColumn(name = "taxpayer_id", nullable = false)
     private Taxpayer taxpayer;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "doc_type", nullable = false, length = 50)
-    private DocTypeTaxpayer docType;
+    private String docType; // e.g., "ID_PROOF", "ADDRESS_PROOF"
 
     @Column(name = "file_uri", nullable = false, columnDefinition = "text")
     private String fileUri;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "verification_status", nullable = false, length = 30)
-    private VerificationStatus verificationStatus = VerificationStatus.Pending;
+    private String verificationStatus = "Pending";
 
     @CreationTimestamp
     @Column(name = "uploaded_date", nullable = false, updatable = false)

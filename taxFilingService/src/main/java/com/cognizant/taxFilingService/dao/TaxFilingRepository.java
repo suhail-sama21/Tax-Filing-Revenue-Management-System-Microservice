@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TaxFilingRepository extends JpaRepository<TaxFiling, Long> {
-    // Spring Data JPA automatically traverses the 'taxpayer' entity to find its 'id'
     List<TaxFiling> findByTaxpayerId(Long taxpayerId);
 }

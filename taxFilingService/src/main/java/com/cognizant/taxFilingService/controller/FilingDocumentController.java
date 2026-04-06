@@ -1,7 +1,7 @@
 package com.cognizant.taxFilingService.controller;
 
-import com.cognizant.taxFilingService.dto.requestdto.FilingDocumentRequestDTO;
-import com.cognizant.taxFilingService.dto.responsedto.FilingDocumentResponseDTO;
+import com.cognizant.taxFilingService.dto.responsedto.*;
+import com.cognizant.taxFilingService.dto.requestdto.*;
 import com.cognizant.taxFilingService.service.FilingDocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,19 +13,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/documents")
+@RequestMapping("/api/documents") // Placed on its own distinct path
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Slf4j
 public class FilingDocumentController {
 
     private final FilingDocumentService documentService;
-
-    @GetMapping("/{documentId}/exists")
-    public ResponseEntity<Boolean> checkDocumentExists(@PathVariable Long documentId) {
-        log.info("Checking existence for Document ID: {}", documentId);
-        return ResponseEntity.ok(documentService.existsById(documentId));
-    }
 
     @PostMapping("/upload")
     public ResponseEntity<FilingDocumentResponseDTO> uploadDocument(
@@ -38,9 +32,9 @@ public class FilingDocumentController {
 
     @GetMapping("/filing/{filingId}")
     public ResponseEntity<List<FilingDocumentResponseDTO>> getDocuments(@PathVariable Long filingId) {
-        log.info("START: Fetching Specific documents by id : {}", filingId);
-        List<FilingDocumentResponseDTO> fdr=documentService.getDocumentsByFiling(filingId);
-        log.info("END: Successfully fetched documents for filingId: {}",filingId);
-        return ResponseEntity.ok(fdr);
+        log.info("START: Fetching documents by filing ID: {}", filingId);
+        List<FilingDocumentResponseDTO> response = documentService.getDocumentsByFiling(filingId);
+        log.info("END: Successfully fetched documents");
+        return ResponseEntity.ok(response);
     }
 }
