@@ -129,4 +129,11 @@ public class PaymentServiceImpl implements PaymentService {
                 .date(payment.getDate())
                 .build();
     }
+    @Override
+    public PaymentResponseDto getPaymentById(Long paymentId) {
+        log.info("Fetching payment by ID: {}", paymentId);
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        return mapToDto(payment);
+    }
 }

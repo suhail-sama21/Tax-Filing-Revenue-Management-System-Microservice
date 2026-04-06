@@ -49,4 +49,9 @@ public class TaxFilingController {
         log.info("END: Status update successful");
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{filingId}")
+    public ResponseEntity<TaxFilingResponseDTO> getFilingById(@PathVariable Long filingId) {
+        log.info("START: Fetching filing ID: {}", filingId);
+        return ResponseEntity.ok(taxFilingService.getFilingById(filingId));
+    }
 }
