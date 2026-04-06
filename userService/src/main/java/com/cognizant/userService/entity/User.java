@@ -1,7 +1,5 @@
 package com.cognizant.userService.entity;
 
-import com.cognizant.userService.entity.entityEnum.StatusBasic;
-import com.cognizant.userService.entity.entityEnum.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,30 +8,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "`user`",
-        indexes = {
-                @Index(name = "idx_user_email", columnList = "email", unique = true),
-                @Index(name = "idx_user_role_status", columnList = "role,status")
-        })
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "`user`", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, length = 40)
-    private UserRole role;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
-    private StatusBasic status = StatusBasic.Active;
 
     @Column(name = "name", nullable = false, length = 200)
     private String name;
@@ -44,11 +26,18 @@ public class User {
     @Column(name = "phone", length = 30)
     private String phone;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
-    @Column(name = "password_changed_at")
-    private Instant passwordChangedAt;
+    @Column(name = "role", nullable = false, length = 40)
+    private String role;
+
+    // --- NEW FIELDS MOVED FROM TAXPAYER ---
+    @Column(name = "address", columnDefinition = "text")
+    private String address;
+
+    @Column(name = "contact_info", columnDefinition = "text")
+    private String contactInfo;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -57,5 +46,4 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
 }

@@ -1,31 +1,37 @@
 package com.cognizant.userService.controller;
 
-import com.cognizant.userService.dto.UserDTO;
+import com.cognizant.userService.dto.UpdateUserProfileRequest;
+import com.cognizant.userService.dto.UserRegistrationRequest;
+import com.cognizant.userService.entity.User;
 import com.cognizant.userService.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
-    private final ModelMapper modelMapper;
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
-
-
-        UserDTO userDto=userService.findByUsername(username);
-
-        return ResponseEntity.ok(userDto);
-    }
 
     @PostMapping("/register")
-    public UserDTO registerUser(@RequestBody UserDTO userDto)
-    {
-        return userService.registerUser(userDto);
+    public ResponseEntity<User> register(@RequestBody UserRegistrationRequest request) {
+        User createdUser = userService.registerUser(request);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    // --- NEW ENDPOINT FOR FEIGN CLIENT ---
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<User> updateProfile(
+            @PathVariable Long id,
+            @RequestBody UpdateUserProfileRequest request) {
+        return ResponseEntity.ok(userService.updateUserProfile(id, request));
     }
 }

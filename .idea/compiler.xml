@@ -3,7 +3,13 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for taxpayerService" enabled="true">
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="notificationService" />
+      </profile>
+      <profile name="Annotation profile for paymentService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -23,9 +29,9 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="complianceservice (1)" target="21" />
-      <module name="notificationService" target="21" />
       <module name="notificationService (1) (com.cognizant.notificationService)" target="21" />
       <module name="revenueService" target="21" />
+      <module name="taxpayerService (1)" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -34,7 +40,7 @@
       <module name="auditservice" options="-parameters" />
       <module name="complianceservice" options="-parameters" />
       <module name="complianceservice (1)" options="-parameters" />
-      <module name="notificationService" options="-parameters" />
+      <module name="notificationService" options="" />
       <module name="notificationService (1) (com.cognizant.notificationService)" options="-parameters" />
       <module name="paymentService" options="-parameters" />
       <module name="reportingService" options="-parameters" />
@@ -42,6 +48,7 @@
       <module name="service-registry" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
+      <module name="taxpayerService (1)" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
   </component>

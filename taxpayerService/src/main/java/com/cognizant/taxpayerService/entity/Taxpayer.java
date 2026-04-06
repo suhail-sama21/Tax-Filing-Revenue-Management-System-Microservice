@@ -1,61 +1,28 @@
 package com.cognizant.taxpayerService.entity;
 
-import com.cognizant.taxpayerService.entity.entityEnum.TaxpayerType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.*;
 
 @Entity
 @Table(name = "taxpayer")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Taxpayer {
+
+    // Taxpayer ID and User ID are exactly the same!
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "taxpayer_id")
-    private Long id;
-
-    // Owning side of 1:1 with User
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", unique = true, nullable = false)
-    private User user;
-
-    @Column(name = "name", nullable = false, length = 200)
-    private String name;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "taxpayer_id_number", nullable = false, unique = true, length = 11)
-    private String taxpayerIdNumber; // 11-digit unique ID
+    private String taxpayerIdNumber; // The 11-digit business/citizen ID
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 30)
-    private TaxpayerType type; // Citizen/Business
-
-    @Column(name = "address", columnDefinition = "text")
-    private String address;
-
-    @Column(name = "contact_info", columnDefinition = "text")
-    private String contactInfo;
+    private String type; // Citizen or Business
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TaxFiling> taxFilings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TaxpayerDocument> taxpayerDocuments = new HashSet<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComplianceRecord> complianceRecords = new ArrayList<>();
-
-    @OneToMany(mappedBy = "taxpayer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RevenueRecord> revenueRecords = new ArrayList<>();
 }

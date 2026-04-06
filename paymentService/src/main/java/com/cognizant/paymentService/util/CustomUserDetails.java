@@ -1,6 +1,6 @@
 package com.cognizant.paymentService.util;
 
-import com.cognizant.taxease.dao.UserRepository;
+import com.cognizant.paymentService.dao.UserRepository;
 import com.cognizant.taxease.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
