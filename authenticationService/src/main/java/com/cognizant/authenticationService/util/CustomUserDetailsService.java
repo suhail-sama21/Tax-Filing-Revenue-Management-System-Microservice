@@ -1,4 +1,4 @@
-package com.cognizant.authenticationService.service;
+package com.cognizant.authenticationService.util;
 
 import com.cognizant.authenticationService.dto.UserDTO;
 

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name="USERSERVICE")
+@FeignClient(name="USER-SERVICE")
 public interface UserClient {
     @PostMapping("/api/users/register")
     public UserDTO registerUser(@RequestBody UserDTO userDto);
