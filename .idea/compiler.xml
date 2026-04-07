@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
+<<<<<<< Updated upstream
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -20,6 +21,9 @@
         <module name="taxpayerService" />
       </profile>
       <profile name="Annotation profile for userService" enabled="true">
+=======
+      <profile name="Annotation profile for notificationService" enabled="true">
+>>>>>>> Stashed changes
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -30,6 +34,10 @@
         <module name="authenticationService" />
         <module name="paymentService" />
         <module name="complianceservice" />
+<<<<<<< Updated upstream
+=======
+        <module name="notificationService" />
+>>>>>>> Stashed changes
         <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
