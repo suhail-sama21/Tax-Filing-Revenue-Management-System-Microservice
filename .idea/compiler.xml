@@ -8,9 +8,18 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
-        <module name="notificationService" />
       </profile>
-      <profile name="Annotation profile for authenticationService" enabled="true">
+      <profile name="Annotation profile for notificationService" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
+        </processorPath>
+        <module name="taxpayerService" />
+      </profile>
+      <profile name="Annotation profile for userService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -19,12 +28,12 @@
         </processorPath>
         <module name="reportingService" />
         <module name="authenticationService" />
-        <module name="taxpayerService" />
         <module name="paymentService" />
         <module name="complianceservice" />
         <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
+        <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
         <module name="service-registry" />
         <module name="userService" />
       </profile>
@@ -32,6 +41,7 @@
     <bytecodeTargetLevel>
       <module name="authService" target="21" />
       <module name="complianceservice (1)" target="21" />
+      <module name="notificationService" target="21" />
       <module name="notificationService (1) (com.cognizant.notificationService)" target="21" />
       <module name="revenueService" target="21" />
       <module name="taxpayerRegistrationService" target="21" />
@@ -55,6 +65,7 @@
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
       <module name="taxpayerService (1)" options="-parameters" />
+      <module name="taxpayerService (1) (com.cognizant.taxpayerService)" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
   </component>
