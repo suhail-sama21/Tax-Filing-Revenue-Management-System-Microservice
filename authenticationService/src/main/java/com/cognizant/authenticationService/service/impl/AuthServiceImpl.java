@@ -8,12 +8,14 @@ import com.cognizant.authenticationService.feignclient.UserClient;
 import com.cognizant.authenticationService.service.AuthService;
 import com.cognizant.authenticationService.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -26,7 +28,6 @@ public class AuthServiceImpl implements AuthService {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
         );
-
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
         String role = userDetails.getAuthorities()
@@ -35,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
                 .getAuthority();
 
         String token = authUtil.generateToken(userDetails.getUsername(),role);
+        log.info("Generated); JWT token for user: {}", dto.getEmail());
 
         return new AuthResponseDTO(token);
     }
@@ -43,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     public RegisterResponse register(UserDTO userDTO) {
        UserDTO user=userClient.registerUser(userDTO);
        return RegisterResponse.builder()
-               .userId(user.getId())
+               .name(user.getName())
                .message("User registered successfully")
                .build();
     }

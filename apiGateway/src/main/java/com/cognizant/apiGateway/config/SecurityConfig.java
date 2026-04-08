@@ -11,29 +11,19 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
-@EnableMethodSecurity
+@EnableWebFluxSecurity // Ensure this is present for WebFlux
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthFilter jwtAuthFilter;
     @Bean
-        public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-
-            http
-                    .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                    .authorizeExchange(exchanges -> exchanges
-                            .pathMatchers("/api/auth/**").permitAll()
-                            .anyExchange().authenticated()
-                    );
-
-            return http.build();
-        }
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(exchanges -> exchanges
+                        .anyExchange().permitAll()
+                );
+        return http.build();
     }
-
-
-
-//cross - site request forgery
-
+}
 
 
 

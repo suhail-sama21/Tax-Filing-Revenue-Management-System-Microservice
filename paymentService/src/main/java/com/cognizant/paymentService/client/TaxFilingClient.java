@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "tax-filing-service")
+@FeignClient(name = "tax-filing-service",configuration = FeignClientInterceptor.class)
 public interface TaxFilingClient {
     // We just need a simple DTO to catch the response
     @GetMapping("/api/filings/{filingId}")

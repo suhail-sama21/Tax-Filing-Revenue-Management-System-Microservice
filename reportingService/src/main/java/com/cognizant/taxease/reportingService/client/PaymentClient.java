@@ -5,11 +5,11 @@ import com.cognizant.taxease.reportingService.dto.RevenueDashboardResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(name = "payment-service")
-public interface PaymentClient {
+@FeignClient(name = "payment-service",configuration = FeignClientInterceptor.class)
+public abstract class PaymentClient {
     @GetMapping("/api/payments/metrics")
-    PaymentMetricsResponse getPaymentMetrics();
+    public abstract PaymentMetricsResponse getPaymentMetrics();
 
     @GetMapping("/api/payments/revenue")
-    RevenueDashboardResponse getRevenueDashboard();
+    public abstract RevenueDashboardResponse getRevenueDashboard();
 }

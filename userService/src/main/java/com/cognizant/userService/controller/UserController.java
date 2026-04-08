@@ -7,6 +7,7 @@ import com.cognizant.userService.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,9 +30,15 @@ public class UserController {
 
     // --- NEW ENDPOINT FOR FEIGN CLIENT ---
     @PutMapping("/{id}/profile")
+    @PreAuthorize("hasRole('TAXPAYER')")
     public ResponseEntity<User> updateProfile(
             @PathVariable Long id,
             @RequestBody UpdateUserProfileRequest request) {
         return ResponseEntity.ok(userService.updateUserProfile(id, request));
+    }
+
+    @GetMapping("/username/{username}")
+    public  ResponseEntity<User> getUserByUsername(@PathVariable String username){
+        return ResponseEntity.ok(userService.getUserByName(username));
     }
 }

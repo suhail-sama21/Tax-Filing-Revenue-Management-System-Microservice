@@ -13,5 +13,5 @@ public interface UserClient {
     public UserDTO registerUser(@RequestBody UserDTO userDto);
 
     @GetMapping("/api/users/username/{username}")
-    UserDTO getUserByUsername(@PathVariable String username);
+    public UserDTO getUserByUsername(@PathVariable String username);
 }

@@ -9,6 +9,6 @@ import lombok.*;
 @Data
 @Builder
 public class RegisterResponse {
-    Long userId;
+    String name;
     String message;
 }

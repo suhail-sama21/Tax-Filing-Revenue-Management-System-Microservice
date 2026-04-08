@@ -6,6 +6,7 @@ import com.cognizant.userService.entity.User;
 import com.cognizant.userService.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    private final PasswordEncoder passwordEncoder;
     public User registerUser(UserRegistrationRequest request) {
         log.info("Registering new user with email: {}", request.getEmail());
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -25,7 +26,7 @@ public class UserService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .phone(request.getPhone())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole() != null ? request.getRole() : "TAXPAYER")
                 .address(request.getAddress())         // Saving the new field
                 .contactInfo(request.getContactInfo()) // Saving the new field
@@ -51,4 +52,8 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+     public User getUserByName(String username){
+         return userRepository.findByEmail(username);
+     }
 }
