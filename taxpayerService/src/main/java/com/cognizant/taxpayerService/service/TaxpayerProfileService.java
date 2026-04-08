@@ -6,6 +6,7 @@ import com.cognizant.taxpayerService.dao.TaxpayerRepository;
 import com.cognizant.taxpayerService.dto.*;
 import com.cognizant.taxpayerService.entity.Taxpayer;
 import com.cognizant.taxpayerService.entity.TaxpayerDocument;
+import com.cognizant.taxpayerService.exception.GlobalExceptionHandler.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,10 +45,15 @@ public class TaxpayerProfileService {
 
         // 1. Get Local Tax Data (using findById since userId is the primary key!)
         Taxpayer taxpayer = taxpayerRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Taxpayer not found"));
+                .orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + userId));
 
         // 2. Get Remote User Data via Feign
-        UserDto userDto = userServiceClient.getUserById(userId);
+        UserDto userDto;
+        try {
+            userDto = userServiceClient.getUserById(userId);
+        } catch (Exception e) {
+            throw new UserServiceException("Failed to retrieve user data from User Service for user ID: " + userId, e);
+        }
 
         // 3. Combine
         return TaxpayerResponse.builder()
@@ -60,20 +66,24 @@ public class TaxpayerProfileService {
 
     public TaxpayerResponse updateProfile(Long userId, UpdateTaxpayerProfileRequestDto request) {
         log.info("Forwarding profile update for User ID: {} to User Service", userId);
-        userServiceClient.updateUserProfile(userId, request);
+        try {
+            userServiceClient.updateUserProfile(userId, request);
+        } catch (Exception e) {
+            throw new UserServiceException("Failed to update user profile in User Service for user ID: " + userId, e);
+        }
         return getFullTaxpayerProfile(userId);
     }
 
     // --- DOCUMENT LOGIC ---
 
     public List<TaxpayerDocumentResponseDto> getDocuments(Long userId) {
-        Taxpayer taxpayer = taxpayerRepository.findById(userId).orElseThrow();
+        Taxpayer taxpayer = taxpayerRepository.findById(userId).orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + userId));
         return documentRepository.findByTaxpayer(taxpayer).stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional
     public TaxpayerDocumentResponseDto uploadDocument(Long userId, DocumentUploadRequestDto request) {
-        Taxpayer taxpayer = taxpayerRepository.findById(userId).orElseThrow();
+        Taxpayer taxpayer = taxpayerRepository.findById(userId).orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + userId));
         TaxpayerDocument document = TaxpayerDocument.builder()
                 .taxpayer(taxpayer).docType(request.getDocType()).fileUri(request.getFileUri()).verificationStatus("Pending").build();
         return convertToDto(documentRepository.save(document));
@@ -81,11 +91,11 @@ public class TaxpayerProfileService {
 
     @Transactional
     public void deleteDocument(Long userId, Long documentId) {
-        TaxpayerDocument document = documentRepository.findById(documentId).orElseThrow();
+        TaxpayerDocument document = documentRepository.findById(documentId).orElseThrow(() -> new DocumentNotFoundException("Document not found with ID: " + documentId));
         if ("Rejected".equalsIgnoreCase(document.getVerificationStatus())) {
             documentRepository.delete(document);
         } else {
-            throw new RuntimeException("Only rejected documents can be deleted.");
+            throw new DocumentDeletionException("Only rejected documents can be deleted.");
         }
     }
 
@@ -112,13 +122,13 @@ public class TaxpayerProfileService {
         log.info("Updating verification status for doc {} to {}", documentId, newStatus);
 
         Taxpayer taxpayer = taxpayerRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Taxpayer not found"));
+                .orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + userId));
 
         TaxpayerDocument document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new DocumentNotFoundException("Document not found with ID: " + documentId));
 
         if (!document.getTaxpayer().getUserId().equals(taxpayer.getUserId())) {
-            throw new RuntimeException("Document does not belong to this taxpayer");
+            throw new DocumentOwnershipException("Document does not belong to this taxpayer");
         }
 
         document.setVerificationStatus(newStatus);
