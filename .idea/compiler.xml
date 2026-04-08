@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <excludeFromCompile>
+      <directory url="file://$PROJECT_DIR$/taxFilingService/src/main/resources/archetype-resources" includeSubdirectories="true" />
+    </excludeFromCompile>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
@@ -9,7 +12,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
       </profile>
-      <profile name="Annotation profile for userService" enabled="true">
+      <profile name="Annotation profile for reportingService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -25,6 +28,7 @@
         <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
+        <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
         <module name="service-registry" />
         <module name="userService" />
       </profile>
@@ -55,6 +59,7 @@
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
       <module name="taxpayerService (1)" options="-parameters" />
+      <module name="taxpayerService (1) (com.cognizant.taxpayerService)" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
   </component>
