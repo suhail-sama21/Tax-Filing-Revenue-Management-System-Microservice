@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <excludeFromCompile>
+      <directory url="file://$PROJECT_DIR$/taxFilingService/src/main/resources/archetype-resources" includeSubdirectories="true" />
+    </excludeFromCompile>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
@@ -9,17 +12,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
       </profile>
-      <profile name="Annotation profile for notificationService" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-        </processorPath>
-        <module name="taxpayerService" />
-      </profile>
-      <profile name="Annotation profile for userService" enabled="true">
+      <profile name="Annotation profile for reportingService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -27,9 +20,11 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
         <module name="reportingService" />
+        <module name="taxpayerService" />
         <module name="authenticationService" />
         <module name="paymentService" />
         <module name="complianceservice" />
+        <module name="notificationService" />
         <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
@@ -41,7 +36,6 @@
     <bytecodeTargetLevel>
       <module name="authService" target="21" />
       <module name="complianceservice (1)" target="21" />
-      <module name="notificationService" target="21" />
       <module name="notificationService (1) (com.cognizant.notificationService)" target="21" />
       <module name="revenueService" target="21" />
       <module name="taxpayerRegistrationService" target="21" />
