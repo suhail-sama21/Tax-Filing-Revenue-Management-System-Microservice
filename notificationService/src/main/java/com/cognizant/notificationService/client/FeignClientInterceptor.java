@@ -1,7 +1,8 @@
-package com.cognizant.taxFilingService.client;
+package com.cognizant.notificationService.client;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
