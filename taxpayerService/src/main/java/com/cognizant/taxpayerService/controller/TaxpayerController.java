@@ -24,21 +24,22 @@ public class TaxpayerController {
     private final TaxpayerProfileService service;
 
     @PostMapping("/profile")
-    @PreAuthorize("hasRole('TAXPAYER')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<Taxpayer> createProfile(@RequestParam Long userId, @RequestParam(required = false) String type) {
         log.info("Creating profile for userId: {}, type: {}", userId, type);
         return new ResponseEntity<>(service.createBaseProfile(userId, type), HttpStatus.CREATED);
     }
 
     @GetMapping("/user/{userId}/full-profile")
-    @PreAuthorize("hasRole('TAXPAYER')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<TaxpayerResponse> getProfile(@PathVariable Long userId) {
         // Verify the authenticated user is accessing their own profile
+        log.info("Get profile for userId: {}", userId);
         return ResponseEntity.ok(service.getFullTaxpayerProfile(userId));
     }
 
     @PutMapping("/user/{userId}/profile")
-    @PreAuthorize("hasRole('TAXPAYER')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<TaxpayerResponse> updateProfile(
             @PathVariable Long userId,
             @Valid @RequestBody UpdateTaxpayerProfileRequestDto request) {
@@ -53,7 +54,7 @@ public class TaxpayerController {
     }
 
     @PostMapping("/user/{userId}/documents/upload")
-    @PreAuthorize("hasRole('TAXPAYER')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<TaxpayerDocumentResponseDto> uploadDocument(
             @PathVariable Long userId, @Valid @RequestBody DocumentUploadRequestDto request) {
         // Verify the authenticated user is uploading documents for themselves
@@ -67,7 +68,7 @@ public class TaxpayerController {
     }
 
     @GetMapping("/user/{userId}/documents")
-    @PreAuthorize("hasRole('TAXPAYER')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<List<TaxpayerDocumentResponseDto>> getDocuments(@PathVariable Long userId) {
         // Verify the authenticated user is accessing their own documents
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -80,7 +81,7 @@ public class TaxpayerController {
     }
 
     @DeleteMapping("/user/{userId}/documents/{documentId}")
-    @PreAuthorize("hasRole('TAXPAYER')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<Void> deleteDocument(@PathVariable Long userId, @PathVariable Long documentId) {
         // Verify the authenticated user is deleting their own document
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -94,7 +95,7 @@ public class TaxpayerController {
     }
 
     @PatchMapping("/user/{userId}/documents/{documentId}/verify")
-    @PreAuthorize("hasRole('COMPLIANCE')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<TaxpayerDocumentResponseDto> updateDocumentStatus(
             @PathVariable Long userId,
             @PathVariable Long documentId,
