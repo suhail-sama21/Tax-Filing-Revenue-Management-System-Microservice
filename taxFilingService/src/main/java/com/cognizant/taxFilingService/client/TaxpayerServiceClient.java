@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 // This connects to your Taxpayer Service!
-@FeignClient(name = "taxpayer-service")
+@FeignClient(name = "taxpayer-service",configuration = FeignClientInterceptor.class)
 public interface TaxpayerServiceClient {
 
     // We just need to hit this endpoint. If it returns 200 OK, the taxpayer exists!

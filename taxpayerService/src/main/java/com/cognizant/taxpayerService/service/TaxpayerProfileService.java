@@ -28,9 +28,10 @@ public class TaxpayerProfileService {
     // --- PROFILE LOGIC ---
 
     @Transactional
-    public Taxpayer createBaseProfile(Long userId, String type) {
+    public Taxpayer createBaseProfile(Long userId, String type) throws RuntimeException {
         log.info("Creating base tax profile for User ID: {}", userId);
-
+        UserDto userDto=userServiceClient.getUserById(userId);
+        if(userDto==null)throw new RuntimeException("User not found in User Service for ID: "+userId);
         Taxpayer taxpayer = Taxpayer.builder()
                 .userId(userId) // Setting the ID explicitly
                 .type(type != null ? type : "Citizen")

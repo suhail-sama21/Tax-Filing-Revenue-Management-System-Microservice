@@ -25,8 +25,8 @@ public class JwtUtil {
     // Generate JWT Token (Updated for 0.13.0)
     public String generateToken(String username, String role) {
         return Jwts.builder()
+                .claim("role", role)
                 .subject(username)
-                .claim("role", role) // Use claim() for individual claims
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(getSigningKey(), Jwts.SIG.HS256) // Explicitly set the algorithm

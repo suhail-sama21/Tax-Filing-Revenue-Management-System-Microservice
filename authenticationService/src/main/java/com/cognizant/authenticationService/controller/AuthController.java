@@ -19,21 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class AuthController {
     private final AuthService authService;
-   // @PreAuthorize("permitAll()")
    @PostMapping("/login")
    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
        log.info("START: Login attempt for user: {}", request.getEmail());
        AuthResponseDTO response = authService.login(request);
        log.info("END: Login successful ");
        return ResponseEntity.ok(response);
-
    }
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> registerUser(@RequestBody UserDTO userDto)
     {
         log.info("START: Registering taxpayer with email: {}", userDto.getEmail());
         RegisterResponse response= authService.register(userDto);
-        log.info("END: Registration successful for user ID: {}", response.getUserId());
+        log.info("END: Registration successful for user ID: {}", response.getName());
         return ResponseEntity.ok(response);
     }
 
