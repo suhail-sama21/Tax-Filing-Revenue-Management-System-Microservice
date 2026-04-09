@@ -10,8 +10,6 @@ eureka:
     # It doesn't need to register itself or fetch a list from itself.
     register-with-eureka: false
     fetch-registry: false
-
-    eureka:
-      server:
+    server:
         enable-self-preservation=false:
 

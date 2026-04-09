@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(name = "payment-service",configuration = FeignClientInterceptor.class)
 public interface PaymentClient {
     @GetMapping("/api/payments/metrics")
-    PaymentMetricsResponse getPaymentMetrics();
+    public  PaymentMetricsResponse getPaymentMetrics();
 
     @GetMapping("/api/payments/revenue")
-    RevenueDashboardResponse getRevenueDashboard();
-
-
+    public RevenueDashboardResponse getRevenueDashboard();
 }

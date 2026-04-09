@@ -12,7 +12,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
       </profile>
-      <profile name="Annotation profile for reportingService" enabled="true">
+      <profile name="Annotation profile for notificationService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -28,8 +28,8 @@
         <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
-        <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
         <module name="service-registry" />
+        <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
         <module name="userService" />
       </profile>
     </annotationProcessing>
