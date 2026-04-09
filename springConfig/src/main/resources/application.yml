@@ -1,0 +1,13 @@
+server:
+  port: 8886  # (Or 8888, whichever you are using!)
+
+spring:
+  application:
+    name: configService
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/suhail-sama21/config-server-taxease.git
+          clone-on-start: true
+          skip-ssl-validation: true  # <--- ADD THIS LINE
