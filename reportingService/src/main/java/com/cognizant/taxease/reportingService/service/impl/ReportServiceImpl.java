@@ -57,6 +57,10 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public byte[] generateCustomReport(LocalDate startDate, LocalDate endDate, String reportType, List<String> metrics) {
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date!");
+        }
+
         StringBuilder csv = new StringBuilder();
 
         csv.append("TaxEase Dynamic Custom Report\n");
