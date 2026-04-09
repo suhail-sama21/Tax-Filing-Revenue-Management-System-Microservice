@@ -10,4 +10,6 @@ spring:
         git:
           uri: https://github.com/suhail-sama21/config-server-taxease.git
           clone-on-start: true
+          username: ${user}
+          password: ${password}
           skip-ssl-validation: true  # <--- ADD THIS LINE
