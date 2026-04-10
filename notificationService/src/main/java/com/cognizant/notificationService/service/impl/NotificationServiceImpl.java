@@ -5,6 +5,7 @@ import com.cognizant.notificationService.dto.response.NotificationResponse;
 import com.cognizant.notificationService.entity.Notification;
 import com.cognizant.notificationService.entity.entityenum.NotificationCategory;
 import com.cognizant.notificationService.entity.entityenum.NotificationStatus;
+import com.cognizant.notificationService.exception.ResourceNotFoundException;
 import com.cognizant.notificationService.repository.NotificationRepository;
 import com.cognizant.notificationService.service.NotificationService;
 import feign.FeignException;
@@ -30,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
             userClient.getUserById(userId);
         } catch (FeignException.NotFound e) {
             log.error("Validation failed: User ID {} not found in User Service", userId);
-            throw new RuntimeException("User ID " + userId + " does not exist.");
+            throw new ResourceNotFoundException("User ID " + userId + " does not exist.");
         } catch (Exception e) {
             log.error("Error communicating with User Service", e);
             throw new RuntimeException("Error verifying user existence.");
@@ -74,7 +75,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         log.info("Marking notification {} as read for user {}", notificationId, userId);
         Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
-                .orElseThrow(() -> new RuntimeException("Notification not found or unauthorized"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found or unauthorized"));
 
         if (notification.getStatus() == NotificationStatus.UNREAD) {
             notification.setStatus(NotificationStatus.READ);
