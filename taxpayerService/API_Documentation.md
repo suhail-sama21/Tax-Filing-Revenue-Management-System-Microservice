@@ -3,7 +3,7 @@
 This document provides detailed information on all API endpoints for the Taxpayer Service, including Postman examples, expected outputs, and exceptional cases.
 
 ## Base URL
-`http://localhost:8080/api/taxpayers` (assuming default port; adjust as per configuration)
+`http://localhost:8082/api/taxpayers` (assuming default port; adjust as per configuration)
 
 ## Common Headers
 - `Content-Type: application/json`
@@ -17,7 +17,7 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: POST
-- **URL**: `http://localhost:8080/api/taxpayers/profile?userId=1&type=Citizen`
+- **URL**: `http://localhost:8082/api/taxpayers/profile?userId=1&type=Citizen`
 - **Headers**:
   - Content-Type: application/json
 - **Body**: None (parameters in query)
@@ -45,7 +45,7 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: GET
-- **URL**: `http://localhost:8080/api/taxpayers/user/1/full-profile`
+- **URL**: `http://localhost:8082/api/taxpayers/user/1/full-profile`
 - **Headers**:
   - Content-Type: application/json
 - **Body**: None
@@ -77,14 +77,14 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: PUT
-- **URL**: `http://localhost:8080/api/taxpayers/user/1/profile`
+- **URL**: `http://localhost:8082/api/taxpayers/user/1/profile`
 - **Headers**:
   - Content-Type: application/json
 - **Body**:
 ```json
 {
-  "name": "Updated Name",
-  "email": "updated@example.com"
+  "address": "123 Updated Avenue",
+  "contactInfo": "updated@example.com"
 }
 ```
 
@@ -104,7 +104,7 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: POST
-- **URL**: `http://localhost:8080/api/taxpayers/user/1/documents/upload`
+- **URL**: `http://localhost:8082/api/taxpayers/user/1/documents/upload`
 - **Headers**:
   - Content-Type: application/json
 - **Body**:
@@ -140,7 +140,7 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: GET
-- **URL**: `http://localhost:8080/api/taxpayers/user/1/documents`
+- **URL**: `http://localhost:8082/api/taxpayers/user/1/documents`
 - **Headers**:
   - Content-Type: application/json
 - **Body**: None
@@ -170,7 +170,7 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: DELETE
-- **URL**: `http://localhost:8080/api/taxpayers/user/1/documents/1`
+- **URL**: `http://localhost:8082/api/taxpayers/user/1/documents/1`
 - **Headers**:
   - Content-Type: application/json
 - **Body**: None
@@ -190,7 +190,7 @@ This document provides detailed information on all API endpoints for the Taxpaye
 
 #### Postman Request
 - **Method**: PATCH
-- **URL**: `http://localhost:8080/api/taxpayers/user/1/documents/1/verify`
+- **URL**: `http://localhost:8082/api/taxpayers/user/1/documents/1/verify`
 - **Headers**:
   - Content-Type: application/json
 - **Body**:
