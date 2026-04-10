@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Tax-Filing-Revenue-Management-System-Microservice.iml" filepath="$PROJECT_DIR$/.idea/Tax-Filing-Revenue-Management-System-Microservice.iml" />
-      <module fileurl="file://$PROJECT_DIR$/taxpayerService/taxpayerService.iml" filepath="$PROJECT_DIR$/taxpayerService/taxpayerService.iml" />
     </modules>
   </component>
 </project>
