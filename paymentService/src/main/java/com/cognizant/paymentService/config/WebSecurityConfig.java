@@ -37,8 +37,9 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                                 .requestMatchers("/api/payments/pay", "/api/payments/retry/**").hasAnyRole("TAXPAYER","INTERNAL")
-                                .requestMatchers("/api/payments/**").hasAnyRole("OFFICER","INTERNAL")
                                 .requestMatchers("/api/payments/history/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
+                                .requestMatchers("/api/payments/**").hasAnyRole("OFFICER","INTERNAL")
+
                                 .anyRequest().authenticated()
 //
                 )

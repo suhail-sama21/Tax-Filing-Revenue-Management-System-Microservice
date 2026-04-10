@@ -11,6 +11,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
+        <module name="springConfig" />
       </profile>
       <profile name="Annotation profile for notificationService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -56,6 +57,7 @@
       <module name="reportingService" options="-parameters" />
       <module name="revenueService" options="-parameters" />
       <module name="service-registry" options="-parameters" />
+      <module name="springConfig" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
       <module name="taxpayerService (1)" options="-parameters" />
