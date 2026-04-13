@@ -99,7 +99,7 @@ public class TaxpayerController {
     public ResponseEntity<TaxpayerDocumentResponseDto> updateDocumentStatus(
             @PathVariable Long userId,
             @PathVariable Long documentId,
-            @RequestBody DocumentVerificationRequestDto request) {
+            @Valid @RequestBody DocumentVerificationRequestDto request) {
         // Only COMPLIANCE role can verify documents
         log.info("Document verification by compliance officer for document {} of user {}", documentId, userId);
         return ResponseEntity.ok(service.updateDocumentStatus(userId, documentId, request.getStatus()));
