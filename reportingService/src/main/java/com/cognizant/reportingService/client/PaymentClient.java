@@ -1,7 +1,7 @@
-package com.cognizant.taxease.reportingService.client;
+package com.cognizant.reportingService.client;
 
-import com.cognizant.taxease.reportingService.dto.PaymentMetricsResponse;
-import com.cognizant.taxease.reportingService.dto.RevenueDashboardResponse;
+import com.cognizant.reportingService.dto.PaymentMetricsResponse;
+import com.cognizant.reportingService.dto.RevenueDashboardResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 

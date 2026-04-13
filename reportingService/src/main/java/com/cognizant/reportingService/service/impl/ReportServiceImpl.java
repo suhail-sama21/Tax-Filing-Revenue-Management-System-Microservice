@@ -1,10 +1,10 @@
-package com.cognizant.taxease.reportingService.service.impl;
+package com.cognizant.reportingService.service.impl;
 
-import com.cognizant.taxease.reportingService.client.AuditClient;
-import com.cognizant.taxease.reportingService.client.ComplianceClient;
-import com.cognizant.taxease.reportingService.client.PaymentClient;
-import com.cognizant.taxease.reportingService.dto.*;
-import com.cognizant.taxease.reportingService.service.ReportService;
+import com.cognizant.reportingService.client.AuditClient;
+import com.cognizant.reportingService.client.ComplianceClient;
+import com.cognizant.reportingService.client.PaymentClient;
+import com.cognizant.reportingService.dto.*;
+import com.cognizant.reportingService.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,6 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public PaymentMetricsResponse getPaymentMetrics() {
-        // Fetched directly from the Payment Service!
         return paymentClient.getPaymentMetrics();
     }
 
@@ -44,7 +43,6 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public RevenueDashboardResponse getRevenueDashboard(String period, String taxpayerType) {
-        // Period and type filtering can be passed to PaymentService in a future update.
         return paymentClient.getRevenueDashboard();
     }
 
@@ -71,14 +69,14 @@ public class ReportServiceImpl implements ReportService {
             csv.append("--- COMPLIANCE DATA ---\n");
             csv.append("Compliance ID,Taxpayer ID,Type,Result,Date,Notes\n");
 
-            List<ComplianceDto> compliances = complianceClient.getAllCompliance().stream()
+            List<ComplianceDto> compliance = complianceClient.getAllCompliance().stream()
                     .filter(c -> !c.getDate().isBefore(startDate) && !c.getDate().isAfter(endDate))
                     .toList();
 
-            if (compliances.isEmpty()) {
+            if (compliance.isEmpty()) {
                 csv.append("No compliance records found for this period.\n");
             } else {
-                for (ComplianceDto c : compliances) {
+                for (ComplianceDto c : compliance) {
                     String safeNotes = c.getNotes() != null ? c.getNotes().replace(",", " ") : "N/A";
                     csv.append(c.getId()).append(",")
                             .append(c.getTaxpayerId()).append(",")

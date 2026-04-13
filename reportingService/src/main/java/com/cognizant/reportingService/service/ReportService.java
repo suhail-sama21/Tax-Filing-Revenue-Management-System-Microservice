@@ -1,6 +1,9 @@
-package com.cognizant.taxease.reportingService.service;
+package com.cognizant.reportingService.service;
 
-import com.cognizant.taxease.reportingService.dto.*;
+import com.cognizant.reportingService.dto.AuditDashboardResponse;
+import com.cognizant.reportingService.dto.AuditDto;
+import com.cognizant.reportingService.dto.PaymentMetricsResponse;
+import com.cognizant.reportingService.dto.RevenueDashboardResponse;
 import java.time.LocalDate;
 import java.util.List;
 

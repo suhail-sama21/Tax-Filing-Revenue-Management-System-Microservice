@@ -1,4 +1,4 @@
-package com.cognizant.taxease.reportingService.dto;
+package com.cognizant.reportingService.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

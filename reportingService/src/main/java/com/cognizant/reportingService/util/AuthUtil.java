@@ -1,4 +1,4 @@
-package com.cognizant.taxease.reportingService.util;
+package com.cognizant.reportingService.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

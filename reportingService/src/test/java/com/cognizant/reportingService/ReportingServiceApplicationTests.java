@@ -1,4 +1,4 @@
-package com.cognizant.taxease.reportingService;
+package com.cognizant.reportingService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
