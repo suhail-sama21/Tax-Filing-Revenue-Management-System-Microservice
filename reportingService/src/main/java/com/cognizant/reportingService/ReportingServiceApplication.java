@@ -1,4 +1,4 @@
-package com.cognizant.taxease.reportingService;
+package com.cognizant.reportingService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

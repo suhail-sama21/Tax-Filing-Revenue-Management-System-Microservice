@@ -1,6 +1,6 @@
-package com.cognizant.taxease.reportingService.filter;
+package com.cognizant.reportingService.filter;
 
-import com.cognizant.taxease.reportingService.util.AuthUtil;
+import com.cognizant.reportingService.util.AuthUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

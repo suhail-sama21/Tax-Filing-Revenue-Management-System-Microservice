@@ -1,6 +1,6 @@
-package com.cognizant.taxease.reportingService.client;
+package com.cognizant.reportingService.client;
 
-import com.cognizant.taxease.reportingService.dto.AuditDto;
+import com.cognizant.reportingService.dto.AuditDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import java.util.List;

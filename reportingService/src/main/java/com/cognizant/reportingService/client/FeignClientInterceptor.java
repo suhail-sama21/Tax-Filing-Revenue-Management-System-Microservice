@@ -1,9 +1,7 @@
-package com.cognizant.taxease.reportingService.client;
+package com.cognizant.reportingService.client;
 
-import com.cognizant.taxease.reportingService.util.AuthUtil;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
