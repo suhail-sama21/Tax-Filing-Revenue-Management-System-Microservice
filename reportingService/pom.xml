@@ -8,7 +8,7 @@
 		<version>4.0.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.cognizant.taxease</groupId>
+	<groupId>com.cognizant</groupId>
 	<artifactId>reportingService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
@@ -104,6 +104,10 @@
 		</dependency>
 <!--		security-->
 		<!--		Security-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>

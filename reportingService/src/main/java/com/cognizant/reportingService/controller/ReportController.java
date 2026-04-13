@@ -1,10 +1,10 @@
-package com.cognizant.taxease.reportingService.controller;
+package com.cognizant.reportingService.controller;
 
-import com.cognizant.taxease.reportingService.dto.AuditDashboardResponse;
-import com.cognizant.taxease.reportingService.dto.AuditDto;
-import com.cognizant.taxease.reportingService.dto.PaymentMetricsResponse;
-import com.cognizant.taxease.reportingService.dto.RevenueDashboardResponse;
-import com.cognizant.taxease.reportingService.service.ReportService;
+import com.cognizant.reportingService.dto.AuditDashboardResponse;
+import com.cognizant.reportingService.dto.AuditDto;
+import com.cognizant.reportingService.dto.PaymentMetricsResponse;
+import com.cognizant.reportingService.dto.RevenueDashboardResponse;
+import com.cognizant.reportingService.service.ReportService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;

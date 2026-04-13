@@ -1,4 +1,4 @@
-package com.cognizant.taxease.reportingService.dto;
+package com.cognizant.reportingService.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +15,6 @@ public class AuditDto {
     private Long officerId;
     private String scope;
     private String findings;
-    private String status; // Active or Inactive
+    private String status;
     private Instant createdAt;
 }

@@ -1,6 +1,6 @@
-package com.cognizant.taxease.reportingService.config;
+package com.cognizant.reportingService.config;
 
-import com.cognizant.taxease.reportingService.filter.JwtAuthFilter;
+import com.cognizant.reportingService.filter.JwtAuthFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
