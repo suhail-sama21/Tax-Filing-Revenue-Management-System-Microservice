@@ -9,6 +9,7 @@ import com.cognizant.paymentService.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,14 +44,26 @@ public class PaymentController {
     }
 
     @GetMapping("/metrics")
-    public PaymentMetricsResponse getPaymentMetrics() {
-        return paymentService.getPaymentMetrics();
+    public ResponseEntity<PaymentMetricsResponse> getPaymentMetrics(
+            @RequestParam(required = false) String method) {
+        return ResponseEntity.ok(paymentService.getMetrics(method));
     }
 
     @GetMapping("/revenue")
-    public RevenueDashboardResponse getRevenueDashboard() {
-        return paymentService.getRevenueDashboard();
+    public RevenueDashboardResponse getRevenueDashboard(
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) String taxpayerType) {
+
+        log.info("START: Fetching payment-service revenue for Period: {} and Type: {}", period, taxpayerType);
+        return paymentService.getRevenueDashboard(period, taxpayerType);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PaymentResponseDto>> getAllPayments() {
+        log.info("Received request for all payment records");
+        return ResponseEntity.ok(paymentService.getAllPayments());
+    }
+
     @GetMapping("/{paymentId}")
     public PaymentResponseDto getPaymentById(@PathVariable Long paymentId) {
         log.info("START: Fetching payment ID: {}", paymentId);

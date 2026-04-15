@@ -1,5 +1,6 @@
 package com.cognizant.reportingService.service.impl;
 
+import com.cognizant.paymentService.dto.responsedto.PaymentResponseDto;
 import com.cognizant.reportingService.client.AuditClient;
 import com.cognizant.reportingService.client.ComplianceClient;
 import com.cognizant.reportingService.client.PaymentClient;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +23,12 @@ public class ReportServiceImpl implements ReportService {
     private final ComplianceClient complianceClient;
 
     @Override
-    public PaymentMetricsResponse getPaymentMetrics() {
-        return paymentClient.getPaymentMetrics();
+    public PaymentMetricsResponse getPaymentMetrics(String method) {
+        try {
+            return paymentClient.getPaymentMetrics(method);
+        } catch (Exception e) {
+            throw new RuntimeException("Validation Error: " + e.getMessage());
+        }
     }
 
     @Override
@@ -43,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public RevenueDashboardResponse getRevenueDashboard(String period, String taxpayerType) {
-        return paymentClient.getRevenueDashboard();
+        return paymentClient.getRevenueDashboard(period, taxpayerType);
     }
 
     @Override
@@ -60,7 +66,6 @@ public class ReportServiceImpl implements ReportService {
         }
 
         StringBuilder csv = new StringBuilder();
-
         csv.append("TaxEase Dynamic Custom Report\n");
         csv.append("Report Type:,").append(reportType).append("\n");
         csv.append("Date Range:,").append(startDate).append(",to,").append(endDate).append("\n\n");
@@ -87,6 +92,35 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
             csv.append("\n");
+        }
+
+        if (metrics.contains("Revenue")) {
+            csv.append("--- REVENUE DATA ---\n");
+            csv.append("Transaction ID,Taxpayer ID,Amount,Status,Date,Method\n");
+
+            try {
+                List<PaymentResponseDto> payments = paymentClient.getAllPayments();
+
+                if (payments == null || payments.isEmpty()) {
+                    csv.append("No revenue records found.\n");
+                } else {
+                    for (PaymentResponseDto p : payments) {
+                        if (p.getDate() != null) { // Add this check
+                            LocalDate pDate = LocalDate.ofInstant(p.getDate(), ZoneId.systemDefault());
+                            if (!pDate.isBefore(startDate) && !pDate.isAfter(endDate)) {
+                                csv.append(p.getId()).append(",")
+                                        .append(p.getTaxpayerId()).append(",")
+                                        .append(p.getAmount()).append(",")
+                                        .append(p.getStatus()).append(",")
+                                        .append(pDate).append(",")
+                                        .append(p.getMethod()).append("\n");
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                csv.append("Error: Could not retrieve revenue data from payment-service.\n");
+            }
         }
 
         return csv.toString().getBytes();

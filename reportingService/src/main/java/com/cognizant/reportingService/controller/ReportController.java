@@ -29,9 +29,11 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping("/payments/metrics")
-    public ResponseEntity<PaymentMetricsResponse> getPaymentMetrics() {
-        log.info("START: Fetching payment metrics");
-        return ResponseEntity.ok(reportService.getPaymentMetrics());
+    public ResponseEntity<PaymentMetricsResponse> getPaymentMetrics(
+            @RequestParam(required = false) String method) {
+
+        log.info("START: Fetching payment metrics for method: {}", method);
+        return ResponseEntity.ok(reportService.getPaymentMetrics(method));
     }
 
     @GetMapping("/audits/dashboard")
@@ -50,7 +52,7 @@ public class ReportController {
     public ResponseEntity<RevenueDashboardResponse> getRevenueDashboard(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String taxpayerType) {
-        log.info("START: Fetching revenue dashboard");
+        log.info("START: Revenue Dashboard request for Period: {} and Type: {}", period, taxpayerType);
         return ResponseEntity.ok(reportService.getRevenueDashboard(period, taxpayerType));
     }
 
