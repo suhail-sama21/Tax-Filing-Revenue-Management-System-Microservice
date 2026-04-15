@@ -22,6 +22,11 @@ import java.util.List;
 public class TaxpayerController {
 
     private final TaxpayerProfileService service;
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('INTERNAL')")
+    public ResponseEntity<String> getTaxpayerById(@PathVariable Long id){
+        return ResponseEntity.ok(service.getTaxPayerType(id));
+    }
 
     @PostMapping("/profile")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")

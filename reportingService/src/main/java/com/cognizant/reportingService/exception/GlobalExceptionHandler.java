@@ -86,16 +86,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("Please check the input fields and try again.", request.getDescription(false), HttpStatus.BAD_REQUEST, fieldErrors);
     }
 
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<Map<String, Object>> handleFeignException(FeignException ex, WebRequest request) {
-        log.error("Feign Client Exception: {}", ex.getMessage());
-
-        String message = "Error communicating with downstream microservice: " + ex.getMessage();
-        int status = ex.status() >= 400 ? ex.status() : HttpStatus.INTERNAL_SERVER_ERROR.value();
-
-        return buildErrorResponse(message, request.getDescription(false), HttpStatus.valueOf(status), null);
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex, WebRequest request) {
         log.error("Unexpected Error: ", ex);

@@ -13,10 +13,11 @@ import java.util.List;
 
 public interface PaymentService {
 
-    RevenueDashboardResponse getRevenueDashboard();
-    PaymentMetricsResponse getPaymentMetrics();
+    RevenueDashboardResponse getRevenueDashboard(String period, String taxpayerType);
+    PaymentMetricsResponse getMetrics(String method);
     PaymentResponseDto retryPayment(Long oldPaymentId, PaymentMethod newMethod);
     List<PaymentResponseDto> getPaymentsByTaxpayer(Long taxpayerId);
     PaymentResponseDto makePayment(Long filingId, PaymentMethod method, BigDecimal amount, StatusBasic status);
     PaymentResponseDto getPaymentById(Long paymentId);
+    List<PaymentResponseDto> getAllPayments();
 }
