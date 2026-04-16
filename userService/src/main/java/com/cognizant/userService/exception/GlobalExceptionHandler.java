@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", Instant.now());
         body.put("status", 401);
         body.put("error", "Unauthorized");
-        body.put("message", "Invalid email or password");
+        body.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
@@ -121,28 +121,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 
-    }
-
-    public static class UserException extends RuntimeException {
-        public UserException(String message) {
-            super(message);
-        }
-    }
-
-    // Thrown when an email is already taken (HTTP 409)
-    public static class EmailAlreadyExistsException extends UserException {
-        public EmailAlreadyExistsException(String email) {
-            super("User with email " + email + " already exists.");
-        }
-    }
-
-    // Thrown when a user cannot be found (HTTP 404)
-    public static class UserNotFoundException extends UserException {
-        public UserNotFoundException(Long id) {
-            super("User not found with ID: " + id);
-        }
-        public UserNotFoundException(String email){
-            super("User not found with email: " + email);
-        }
     }
 }

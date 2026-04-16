@@ -7,6 +7,7 @@ import com.cognizant.userService.dao.UserRepository;
 import com.cognizant.userService.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class UserService {
         log.info("Registering new user with email: {}", request.getEmail());
         if (userRepository.existsByEmail(request.getEmail())) {
             // Use specific exception
-            throw new GlobalExceptionHandler.EmailAlreadyExistsException(request.getEmail());
+            throw new BadCredentialsException("user already existing with email "+request.getEmail());
         }
 
         User user = User.builder()
@@ -40,12 +41,12 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new GlobalExceptionHandler.UserNotFoundException(id));
+                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
     }
 
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new GlobalExceptionHandler.UserNotFoundException(id));
+                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
 
         user.setAddress(request.getAddress());
         user.setContactInfo(request.getContactInfo());
@@ -56,7 +57,7 @@ public class UserService {
     public User getUserByName(String username) {
         User user = userRepository.findByEmail(username);
         if(user==null)
-                throw new GlobalExceptionHandler.UserNotFoundException(username);
+                throw new BadCredentialsException("user not found with name "+username);
         return user;
     }
 }

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,41 +23,37 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<Map<String, Object>> handleFeignException(FeignException e) {
-        ObjectMapper mapper = new ObjectMapper(); // Or inject it via @RequiredArgsConstructor
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-        int status = e.status() == -1 ? 500 : e.status();
-        String rawBody = e.contentUTF8();
-
-        // Default message in case parsing fails
-        String extractedMessage = rawBody;
-
+    @ExceptionHandler(CustomDownStreamException.class)
+    public ResponseEntity<Object> handleCustomDownstream(CustomDownStreamException e) {
+        log.info("INTERCEPTED: CustomDownStreamException with status {}", e.getStatus());
         try {
-            if (rawBody != null && !rawBody.isEmpty()) {
-                // Parse the raw string into a JsonNode tree
-                JsonNode root = mapper.readTree(rawBody);
+            // Parse the clean JSON and return it as the ONLY body
+            JsonNode node = objectMapper.readTree(e.getCleanJson());
+            return ResponseEntity.status(e.getStatus()).body(node);
+        } catch (Exception ex) {
+            // If it's not valid JSON, return it as a string but with the CORRECT status
+            return ResponseEntity.status(e.getStatus()).body(e.getCleanJson());
+        }
+    }
 
-                // Check if the downstream service has a "message" field
-                if (root.has("message")) {
-                    extractedMessage = root.get("message").asText();
-                }
-            }
-        } catch (Exception parseException) {
-            // If it's not JSON, we just keep the rawBody
-            extractedMessage = rawBody;
+    @ExceptionHandler(org.springframework.security.authentication.InternalAuthenticationServiceException.class)
+    public ResponseEntity<Object> handleInternalAuthServiceException(InternalAuthenticationServiceException ex) {
+        log.error("Internal Auth Service Exception caught: {}", ex.getMessage());
+
+        // 1. Check if the "cause" of this error is our CustomDownStreamException
+        if (ex.getCause() instanceof CustomDownStreamException downstreamEx) {
+            log.info("Found CustomDownStreamException inside wrapper, delegating...");
+            return handleCustomDownstream(downstreamEx);
         }
 
-        Map<String, Object> errorDetails = new LinkedHashMap<>();
-        errorDetails.put("timestamp", LocalDateTime.now());
-        errorDetails.put("status", status);
-        errorDetails.put("error", "Downstream Service Failure");
-        errorDetails.put("message", extractedMessage); // This is now the clean string
-        errorDetails.put("service_url", e.request().url());
-
-        return ResponseEntity.status(status).body(errorDetails);
+        // 2. Otherwise, treat it as a Bad Credentials error
+        return handleBadCredentials(new BadCredentialsException("Invalid email or password"));
     }
+
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<Map<String, String>> handleTokenExpired(ExpiredJwtException ex) {
         Map<String, String> body = new HashMap<>();
@@ -75,7 +73,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now());
         body.put("status", 401);
@@ -104,39 +102,35 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
-        String message = ex.getMessage();
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", Instant.now());
+    public ResponseEntity<Object> handleRuntime(RuntimeException ex) {
+        log.info("INTERCEPTED: RuntimeException");
 
-        // Parse message to determine appropriate response
+        String message = ex.getMessage();
+
+        // 3. Normal business logic for local exceptions
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", Instant.now());
+        int status = 500;
+        String error = "Internal Server Error";
+
         if (message != null) {
-            if (message.contains("already exists") || message.contains("Account already exists")) {
-                body.put("status", 409);
-                body.put("error", "Conflict");
-            } else if (message.contains("does not belong") || message.contains("Document does not exist")) {
-                body.put("status", 404);
-                body.put("error", "Not Found");
-            } else if (message.contains("can only be deleted if") || message.contains("Cannot update")) {
-                body.put("status", 403);
-                body.put("error", "Forbidden");
-            } else if (message.contains("File URI is required") || message.contains("Unable to generate")) {
-                body.put("status", 500);
-                body.put("error", "Internal Server Error");
-            } else {
-                body.put("status", 500);
-                body.put("error", "Internal Server Error");
+            if (message.contains("already exists")) {
+                status = 409;
+                error = "Conflict";
+            } else if (message.contains("does not belong")) {
+                status = 404;
+                error = "Not Found";
+            } else if (message.contains("Unauthorized") || message.contains("401")) {
+                status = 401;
+                error = "Unauthorized";
             }
-        } else {
-            body.put("status", 500);
-            body.put("error", "Internal Server Error");
         }
 
+        body.put("status", status);
+        body.put("error", error);
         body.put("message", message);
-        return ResponseEntity.status(body.get("status").equals(409) ? HttpStatus.CONFLICT :
-                body.get("status").equals(404) ? HttpStatus.NOT_FOUND :
-                        body.get("status").equals(403) ? HttpStatus.FORBIDDEN :
-                                HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+
+        return ResponseEntity.status(status).body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

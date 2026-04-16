@@ -3,59 +3,108 @@ package com.cognizant.reportingService.exception;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<Map<String, Object>> handleFeignException(FeignException e) {
-        ObjectMapper mapper = new ObjectMapper(); // Or inject it via @RequiredArgsConstructor
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Map<String, String>> handleTokenExpired(ExpiredJwtException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", "Token Expired");
+        body.put("message", "The provided security token has expired. Please log in again.");
 
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", 403);
+        body.put("error", "Forbidden");
+        body.put("message", "You do not have permission to access this resource.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", 401);
+        body.put("error", "Unauthorized");
+        body.put("message", "Invalid email or password");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(NoSuchElementException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", 404);
+        body.put("error", "Not Found");
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", 400);
+        body.put("error", "Bad Request");
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<Object> handleFeignException(FeignException e) {
         int status = e.status() == -1 ? 500 : e.status();
         String rawBody = e.contentUTF8();
 
-        // Default message in case parsing fails
-        String extractedMessage = rawBody;
-
         try {
-            if (rawBody != null && !rawBody.isEmpty()) {
-                // Parse the raw string into a JsonNode tree
-                JsonNode root = mapper.readTree(rawBody);
+            if (rawBody != null && rawBody.trim().startsWith("{")) {
+                // Unwrap the JSON if Feign added diagnostic brackets
+                int lastOpen = rawBody.lastIndexOf("[");
+                int lastClose = rawBody.lastIndexOf("]");
+                String jsonPart = (lastOpen != -1 && lastClose > lastOpen)
+                        ? rawBody.substring(lastOpen + 1, lastClose)
+                        : rawBody;
 
-                // Check if the downstream service has a "message" field
-                if (root.has("message")) {
-                    extractedMessage = root.get("message").asText();
-                }
+                // Use readValue to avoid the metadata "boolean flags" issue
+                Map<String, Object> downstreamError = new ObjectMapper().readValue(jsonPart, Map.class);
+                return ResponseEntity.status(status).body(downstreamError);
             }
-        } catch (Exception parseException) {
-            // If it's not JSON, we just keep the rawBody
-            extractedMessage = rawBody;
+        } catch (Exception ex) {
+            // Fallback to your existing logic if parsing fails
         }
 
-        Map<String, Object> errorDetails = new LinkedHashMap<>();
-        errorDetails.put("timestamp", LocalDateTime.now());
-        errorDetails.put("status", status);
-        errorDetails.put("error", "Downstream Service Failure");
-        errorDetails.put("message", extractedMessage); // This is now the clean string
-        errorDetails.put("service_url", e.request().url());
-
-        return ResponseEntity.status(status).body(errorDetails);
+        return ResponseEntity.status(status).body(buildBody(HttpStatus.valueOf(status), "Downstream Error", rawBody));
     }
-
+    private Map<String, Object> buildBody(HttpStatus status, String error, String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", status.value());
+        body.put("error", error);
+        body.put("message", message != null ? message : "Unexpected error");
+        return body;
+    }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         log.error("Bad Request / Data Not Found: {}", ex.getMessage());
@@ -84,22 +133,6 @@ public class GlobalExceptionHandler {
 
         log.error("DTO Validation failed: {}", fieldErrors);
         return buildErrorResponse("Please check the input fields and try again.", request.getDescription(false), HttpStatus.BAD_REQUEST, fieldErrors);
-    }
-
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<Map<String, Object>> handleFeignException(FeignException ex, WebRequest request) {
-        log.error("Feign Client Exception: {}", ex.getMessage());
-
-        String message = "Error communicating with downstream microservice: " + ex.getMessage();
-        int status = ex.status() >= 400 ? ex.status() : HttpStatus.INTERNAL_SERVER_ERROR.value();
-
-        return buildErrorResponse(message, request.getDescription(false), HttpStatus.valueOf(status), null);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex, WebRequest request) {
-        log.error("Unexpected Error: ", ex);
-        return buildErrorResponse("An unexpected error occurred: " + ex.getMessage(), request.getDescription(false), HttpStatus.INTERNAL_SERVER_ERROR, null);
     }
 
     private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, String details, HttpStatus status, Map<String, String> fieldErrors) {
