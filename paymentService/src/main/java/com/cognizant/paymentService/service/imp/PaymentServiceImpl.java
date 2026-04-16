@@ -1,6 +1,7 @@
 package com.cognizant.paymentService.service.imp;
 
 import com.cognizant.paymentService.client.TaxFilingClient;
+import com.cognizant.paymentService.client.TaxpayerClient;
 import com.cognizant.paymentService.dto.requestdto.*;
 import com.cognizant.paymentService.dto.responsedto.*;
 
@@ -29,6 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final RevenueRecordRepository revenueRecordRepository;
     private final TaxFilingClient taxFilingClient;
+    private final TaxpayerClient taxpayerClient;
 
     @Override
     @Transactional
@@ -95,26 +97,76 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentMetricsResponse getPaymentMetrics() {
-        long successful = paymentRepository.countByStatus(StatusBasic.Completed);
-        long failed = paymentRepository.countByStatus(StatusBasic.Failed);
-        long total = paymentRepository.count();
+    public List<PaymentResponseDto> getAllPayments() {
+        log.info("Fetching all payments for custom report");
+        List<Payment> payments = paymentRepository.findAll();
+
+        return payments.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PaymentMetricsResponse getMetrics(String method) {
+        List<Payment> payments;
+        if (method != null && !method.isEmpty()) {
+            try {
+                PaymentMethod paymentMethod = PaymentMethod.valueOf(method.toUpperCase());
+                payments = paymentRepository.findByMethod(paymentMethod);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid Payment Method: '" + method);
+            }
+        } else {
+            payments = paymentRepository.findAll();
+        }
+
+        long success = payments.stream()
+                .filter(p -> p.getStatus() == StatusBasic.Completed)
+                .count();
+
+        long failed = payments.stream()
+                .filter(p -> p.getStatus() == StatusBasic.Failed)
+                .count();
 
         return PaymentMetricsResponse.builder()
-                .successfulTransactions(successful)
+                .successfulTransactions(success)
                 .failedTransactions(failed)
-                .totalTransactions(total)
+                .totalTransactions((long) payments.size())
                 .build();
     }
 
     @Override
-    public RevenueDashboardResponse getRevenueDashboard() {
-        BigDecimal collected = revenueRecordRepository.sumCollectedRevenue();
-        BigDecimal outstanding = paymentRepository.sumOutstandingPayments();
+    public RevenueDashboardResponse getRevenueDashboard(String period, String taxpayerType) {
+        List<RevenueRecord> records = revenueRecordRepository.findAll();
+
+        // 1. Filter by Period (using createdAt timestamp)
+        if (period != null && !period.isEmpty()) {
+            records = records.stream()
+                    .filter(r -> r.getCreatedAt().toString().contains(period))
+                    .collect(Collectors.toList());
+        }
+
+        // 2. Filter by TaxpayerType (calling TaxpayerService)
+        if (taxpayerType != null && !taxpayerType.isEmpty()) {
+            records = records.stream()
+                    .filter(r -> {
+                        try {
+                            var taxpayer = taxpayerClient.getTaxpayerById(r.getTaxpayerId());
+                            return taxpayerType.equalsIgnoreCase(taxpayer);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        BigDecimal total = records.stream()
+                .map(RevenueRecord::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return RevenueDashboardResponse.builder()
-                .revenueCollected(collected != null ? collected : BigDecimal.ZERO)
-                .outstandingPayments(outstanding != null ? outstanding : BigDecimal.ZERO)
+                .revenueCollected(total)
+                .outstandingPayments(paymentRepository.sumOutstandingPayments())
                 .build();
     }
 

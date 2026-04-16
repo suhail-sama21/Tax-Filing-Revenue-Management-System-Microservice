@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import org.springframework.core.Ordered;
@@ -33,8 +34,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         // Check if Authorization header exists
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Missing Authorization Header for path: {}", path);
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header");
         }
 
         // Extract token
@@ -44,8 +44,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         try {
             if (!jwtUtil.validateToken(token)) {
                 log.warn("Invalid Token for path: {}", path);
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
             }
 
             // Extract user info from token
@@ -66,8 +65,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
         } catch (Exception e) {
             log.error("Error validating token for path: {}, error: {}", path, e.getMessage());
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token validation failed: " + e.getMessage());
         }
     }
 
