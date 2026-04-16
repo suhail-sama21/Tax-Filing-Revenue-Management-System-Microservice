@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SpringConfigApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="username" value="RohithKumaravel" />
+      <env name="paswword" value="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" />
+    </envs>
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+    <module name="springConfig" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.springConfig.springConfig.SpringConfigApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.springConfig.springConfig.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
