@@ -12,7 +12,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
       </profile>
-      <profile name="Annotation profile for auditLogService" enabled="true">
+      <profile name="Annotation profile for auditservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -22,10 +22,10 @@
         <module name="reportingService" />
         <module name="taxpayerService" />
         <module name="authenticationService" />
-        <module name="paymentService" />
         <module name="complianceservice" />
-        <module name="auditLogService" />
+        <module name="paymentService" />
         <module name="notificationService" />
+        <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
         <module name="service-registry" />
@@ -56,7 +56,6 @@
       <module name="reportingService" options="-parameters" />
       <module name="revenueService" options="-parameters" />
       <module name="service-registry" options="-parameters" />
-      <module name="springConfig" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
       <module name="taxpayerService (1)" options="-parameters" />

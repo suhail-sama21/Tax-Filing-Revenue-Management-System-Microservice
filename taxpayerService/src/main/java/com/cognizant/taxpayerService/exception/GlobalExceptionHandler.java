@@ -27,38 +27,28 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(FeignException.class)
-    public ResponseEntity<Map<String, Object>> handleFeignException(FeignException e) {
-        ObjectMapper mapper = new ObjectMapper(); // Or inject it via @RequiredArgsConstructor
-
+    public ResponseEntity<Object> handleFeignException(FeignException e) {
         int status = e.status() == -1 ? 500 : e.status();
         String rawBody = e.contentUTF8();
 
-        // Default message in case parsing fails
-        String extractedMessage = rawBody;
-
         try {
-            if (rawBody != null && !rawBody.isEmpty()) {
-                // Parse the raw string into a JsonNode tree
-                JsonNode root = mapper.readTree(rawBody);
+            if (rawBody != null && rawBody.trim().startsWith("{")) {
+                // Unwrap the JSON if Feign added diagnostic brackets
+                int lastOpen = rawBody.lastIndexOf("[");
+                int lastClose = rawBody.lastIndexOf("]");
+                String jsonPart = (lastOpen != -1 && lastClose > lastOpen)
+                        ? rawBody.substring(lastOpen + 1, lastClose)
+                        : rawBody;
 
-                // Check if the downstream service has a "message" field
-                if (root.has("message")) {
-                    extractedMessage = root.get("message").asText();
-                }
+                // Use readValue to avoid the metadata "boolean flags" issue
+                Map<String, Object> downstreamError = new ObjectMapper().readValue(jsonPart, Map.class);
+                return ResponseEntity.status(status).body(downstreamError);
             }
-        } catch (Exception parseException) {
-            // If it's not JSON, we just keep the rawBody
-            extractedMessage = rawBody;
+        } catch (Exception ex) {
+            // Fallback to your existing logic if parsing fails
         }
 
-        Map<String, Object> errorDetails = new LinkedHashMap<>();
-        errorDetails.put("timestamp", LocalDateTime.now());
-        errorDetails.put("status", status);
-        errorDetails.put("error", "Downstream Service Failure");
-        errorDetails.put("message", extractedMessage); // This is now the clean string
-        errorDetails.put("service_url", e.request().url());
-
-        return ResponseEntity.status(status).body(errorDetails);
+        return ResponseEntity.status(status).body(buildBody(HttpStatus.valueOf(status), "Downstream Error", rawBody));
     }
     @ExceptionHandler(TaxpayerNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleTaxpayerNotFound(TaxpayerNotFoundException ex) {
