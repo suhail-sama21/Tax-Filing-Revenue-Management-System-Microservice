@@ -9,8 +9,12 @@ import com.cognizant.taxpayerService.entity.TaxpayerDocument;
 import com.cognizant.taxpayerService.exception.GlobalExceptionHandler.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -67,6 +71,8 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
 
     public TaxpayerResponse updateProfile(Long userId, UpdateTaxpayerProfileRequestDto request) {
         log.info("Forwarding profile update for User ID: {} to User Service", userId);
+
+
         try {
             userServiceClient.updateUserProfile(userId, request);
         } catch (Exception e) {
@@ -136,6 +142,9 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
         TaxpayerDocument updatedDocument = documentRepository.save(document);
 
         return convertToDto(updatedDocument);
+    }
+    public String getMailForUserID(Long userId){
+        return userServiceClient.getUserById(userId).getEmail();
     }
 
     @Override
