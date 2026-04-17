@@ -13,7 +13,7 @@
         <module name="apiGateway" />
         <module name="springConfig" />
       </profile>
-      <profile name="Annotation profile for auditLogService" enabled="true">
+      <profile name="Annotation profile for userService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -21,12 +21,12 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
         <module name="reportingService" />
-        <module name="authenticationService" />
         <module name="taxpayerService" />
-        <module name="complianceservice" />
+        <module name="authenticationService" />
         <module name="paymentService" />
-        <module name="auditLogService" />
+        <module name="complianceservice" />
         <module name="notificationService" />
+        <module name="auditLogService" />
         <module name="auditservice" />
         <module name="taxFilingService" />
         <module name="service-registry" />
