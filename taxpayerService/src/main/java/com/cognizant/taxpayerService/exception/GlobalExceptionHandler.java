@@ -1,5 +1,8 @@
 package com.cognizant.taxpayerService.exception;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +15,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -21,7 +26,30 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<Object> handleFeignException(FeignException e) {
+        int status = e.status() == -1 ? 500 : e.status();
+        String rawBody = e.contentUTF8();
 
+        try {
+            if (rawBody != null && rawBody.trim().startsWith("{")) {
+                // Unwrap the JSON if Feign added diagnostic brackets
+                int lastOpen = rawBody.lastIndexOf("[");
+                int lastClose = rawBody.lastIndexOf("]");
+                String jsonPart = (lastOpen != -1 && lastClose > lastOpen)
+                        ? rawBody.substring(lastOpen + 1, lastClose)
+                        : rawBody;
+
+                // Use readValue to avoid the metadata "boolean flags" issue
+                Map<String, Object> downstreamError = new ObjectMapper().readValue(jsonPart, Map.class);
+                return ResponseEntity.status(status).body(downstreamError);
+            }
+        } catch (Exception ex) {
+            // Fallback to your existing logic if parsing fails
+        }
+
+        return ResponseEntity.status(status).body(buildBody(HttpStatus.valueOf(status), "Downstream Error", rawBody));
+    }
     @ExceptionHandler(TaxpayerNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleTaxpayerNotFound(TaxpayerNotFoundException ex) {
         Map<String, Object> body = buildBody(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage());

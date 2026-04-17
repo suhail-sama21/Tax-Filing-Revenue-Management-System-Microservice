@@ -1,5 +1,5 @@
 server:
-  port: 8886  # (Or 8888, whichever you are using!)
+  port: 8888  # (Or 8888, whichever you are using!)
 
 spring:
   application:

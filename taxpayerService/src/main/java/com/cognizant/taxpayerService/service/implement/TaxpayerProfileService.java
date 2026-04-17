@@ -137,4 +137,11 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
 
         return convertToDto(updatedDocument);
     }
+
+    @Override
+    public String getTaxPayerType(Long id) {
+        Taxpayer taxpayer = taxpayerRepository.findById(id)
+                .orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + id));
+        return taxpayer.getType();
+    }
 }

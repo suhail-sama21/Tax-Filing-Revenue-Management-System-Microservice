@@ -4,8 +4,10 @@ import com.cognizant.userService.dto.UpdateUserProfileRequest;
 import com.cognizant.userService.dto.UserRegistrationRequest;
 import com.cognizant.userService.entity.User;
 import com.cognizant.userService.dao.UserRepository;
+import com.cognizant.userService.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +18,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
     public User registerUser(UserRegistrationRequest request) {
         log.info("Registering new user with email: {}", request.getEmail());
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            // Use specific exception
+            throw new BadCredentialsException("user already existing with email "+request.getEmail());
         }
 
         User user = User.builder()
@@ -28,24 +32,21 @@ public class UserService {
                 .phone(request.getPhone())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole() != null ? request.getRole() : "TAXPAYER")
-                .address(request.getAddress())         // Saving the new field
-                .contactInfo(request.getContactInfo()) // Saving the new field
+                .address(request.getAddress())
+                .contactInfo(request.getContactInfo())
                 .build();
 
         return userRepository.save(user);
     }
 
     public User getUserById(Long id) {
-        log.info("Fetching user ID: {}", id);
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
     }
 
-    // --- NEW METHOD FOR FEIGN CLIENT TO CALL ---
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
-        log.info("Updating profile details for user ID: {}", id);
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
 
         user.setAddress(request.getAddress());
         user.setContactInfo(request.getContactInfo());
@@ -53,7 +54,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
-     public User getUserByName(String username){
-         return userRepository.findByEmail(username);
-     }
+    public User getUserByName(String username) {
+        User user = userRepository.findByEmail(username);
+        if(user==null)
+                throw new BadCredentialsException("user not found with name "+username);
+        return user;
+    }
 }

@@ -23,4 +23,6 @@ public interface TaxpayerProfileService {
     void deleteDocument(Long userId, Long documentId);
 
     TaxpayerDocumentResponseDto updateDocumentStatus(Long userId, Long documentId, String newStatus);
+
+    String getTaxPayerType(Long id);
 }
