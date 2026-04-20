@@ -46,9 +46,5 @@ public class WebSecurityConfig {
         log.info("Security filter chain configured successfully for Taxpayer Service");
         return httpSecurity.build();
     }
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
 }
 
