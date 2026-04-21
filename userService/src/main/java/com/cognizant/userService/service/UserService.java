@@ -45,6 +45,7 @@ public class UserService {
     }
 
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
+        log.info("reached updateprofile");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
 

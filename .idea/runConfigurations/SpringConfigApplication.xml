@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="SpringConfigApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
     <envs>
+            
       <env name="username" value="RohithKumaravel" />
       <env name="paswword" value="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" />
     </envs>
