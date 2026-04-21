@@ -5,6 +5,7 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -12,13 +13,16 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class FeignClientInterceptor implements RequestInterceptor {
 
-    @Autowired
-    private AuthUtil jwtUtil;
+
+    @Value("${internal.auth.header-name}")
+    private String headerName;
+
+    @Value("${internal.auth.secret-value}")
+    private String secretValue;
 
     @Override
     public void apply(RequestTemplate template) {
-        // Generate a token specifically with the INTERNAL role
-        String internalToken = jwtUtil.generateToken("SYSTEM-GATEWAY", "INTERNAL");
-        template.header("Authorization", "Bearer " + internalToken);
+        // Efficiently injects the static key-value pair
+        template.header(headerName, secretValue);
     }
 }

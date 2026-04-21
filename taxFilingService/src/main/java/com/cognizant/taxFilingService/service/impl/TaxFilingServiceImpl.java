@@ -64,7 +64,7 @@ public class TaxFilingServiceImpl implements TaxFilingService {
     public TaxFilingResponseDTO getFilingById(Long filingId) {
         return taxFilingRepository.findById(filingId)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new RuntimeException("Filing not found"));
+                .orElseThrow(() -> new RuntimeException("Tax Filing record not found for ID: " + filingId));
     }
 
     private TaxFilingResponseDTO mapToDTO(TaxFiling filing) {

@@ -1,14 +1,23 @@
 package com.cognizant.taxpayerService.exception;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -17,7 +26,30 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<Object> handleFeignException(FeignException e) {
+        int status = e.status() == -1 ? 500 : e.status();
+        String rawBody = e.contentUTF8();
 
+        try {
+            if (rawBody != null && rawBody.trim().startsWith("{")) {
+                // Unwrap the JSON if Feign added diagnostic brackets
+                int lastOpen = rawBody.lastIndexOf("[");
+                int lastClose = rawBody.lastIndexOf("]");
+                String jsonPart = (lastOpen != -1 && lastClose > lastOpen)
+                        ? rawBody.substring(lastOpen + 1, lastClose)
+                        : rawBody;
+
+                // Use readValue to avoid the metadata "boolean flags" issue
+                Map<String, Object> downstreamError = new ObjectMapper().readValue(jsonPart, Map.class);
+                return ResponseEntity.status(status).body(downstreamError);
+            }
+        } catch (Exception ex) {
+            // Fallback to your existing logic if parsing fails
+        }
+
+        return ResponseEntity.status(status).body(buildBody(HttpStatus.valueOf(status), "Downstream Error", rawBody));
+    }
     @ExceptionHandler(TaxpayerNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleTaxpayerNotFound(TaxpayerNotFoundException ex) {
         Map<String, Object> body = buildBody(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage());
@@ -87,6 +119,34 @@ public class GlobalExceptionHandler {
         });
 
         body.put("message", fieldErrors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        Map<String, Object> body = buildBody(status, status.getReasonPhrase(), ex.getReason());
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "Malformed JSON Request", ex.getMostSpecificCause().getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingParams(MissingServletRequestParameterException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "Missing Request Parameter", ex.getParameterName() + " parameter is missing");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "Validation Error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
