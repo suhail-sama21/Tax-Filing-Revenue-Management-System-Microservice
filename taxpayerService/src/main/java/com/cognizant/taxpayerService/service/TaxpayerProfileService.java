@@ -5,6 +5,7 @@ import com.cognizant.taxpayerService.dto.TaxpayerDocumentResponseDto;
 import com.cognizant.taxpayerService.dto.TaxpayerResponse;
 import com.cognizant.taxpayerService.dto.UpdateTaxpayerProfileRequestDto;
 import com.cognizant.taxpayerService.entity.Taxpayer;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -25,4 +26,6 @@ public interface TaxpayerProfileService {
     TaxpayerDocumentResponseDto updateDocumentStatus(Long userId, Long documentId, String newStatus);
 
     String getTaxPayerType(Long id);
+
+    String getMailForUserID(Long userId);
 }
