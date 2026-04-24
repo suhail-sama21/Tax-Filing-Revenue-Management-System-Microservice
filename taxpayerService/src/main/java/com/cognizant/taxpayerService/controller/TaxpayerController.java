@@ -71,6 +71,23 @@ public class TaxpayerController {
         return new ResponseEntity<>(service.uploadDocument(userId, request), HttpStatus.CREATED);
     }
 
+    @PutMapping("/user/{userId}/documents/{documentId}")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    public ResponseEntity<TaxpayerDocumentResponseDto> updateDocument(
+            @PathVariable Long userId,
+            @PathVariable Long documentId,
+            @Valid @RequestBody DocumentUploadRequestDto request) {
+        System.out.println("inside controller");
+        // Verify the authenticated user is updating their own document
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!currentUserId.equals(service.getMailForUserID(userId))) {
+            log.warn("Unauthorized document update attempt: User {} tried to update for user {}", currentUserId, userId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own documents");
+        }
+
+        return ResponseEntity.ok(service.updateDocument(userId, documentId, request));
+    }
+
     @GetMapping("/user/{userId}/documents")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<List<TaxpayerDocumentResponseDto>> getDocuments(@PathVariable Long userId) {
@@ -99,13 +116,13 @@ public class TaxpayerController {
     }
 
     @PatchMapping("/user/{userId}/documents/{documentId}/verify")
-    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR')")
     public ResponseEntity<TaxpayerDocumentResponseDto> updateDocumentStatus(
             @PathVariable Long userId,
             @PathVariable Long documentId,
             @Valid @RequestBody DocumentVerificationRequestDto request) {
-        // Only COMPLIANCE role can verify documents
-        log.info("Document verification by compliance officer for document {} of user {}", documentId, userId);
+        // Only OFFICER and ADMINISTRATOR roles can verify documents
+        log.info("Document verification by officer/admin for document {} of user {}", documentId, userId);
         return ResponseEntity.ok(service.updateDocumentStatus(userId, documentId, request.getStatus()));
     }
 }
