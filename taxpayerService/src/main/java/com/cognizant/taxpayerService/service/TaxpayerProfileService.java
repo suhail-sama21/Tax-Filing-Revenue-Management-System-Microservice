@@ -21,6 +21,8 @@ public interface TaxpayerProfileService {
 
     TaxpayerDocumentResponseDto uploadDocument(Long userId, DocumentUploadRequestDto request);
 
+    TaxpayerDocumentResponseDto updateDocument(Long userId, Long documentId, DocumentUploadRequestDto request);
+
     void deleteDocument(Long userId, Long documentId);
 
     TaxpayerDocumentResponseDto updateDocumentStatus(Long userId, Long documentId, String newStatus);
