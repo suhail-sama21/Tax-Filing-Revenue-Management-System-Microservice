@@ -1,8 +1,10 @@
 package com.cognizant.Compliance_Service.service;
 
+import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
 import com.cognizant.Compliance_Service.dto.ComplianceResponse;
 import com.cognizant.Compliance_Service.dto.CreateComplianceRequest;
 import com.cognizant.Compliance_Service.dto.UpdateComplianceRequest;
+import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
 
 import java.util.List;
 
@@ -18,4 +20,6 @@ public interface ComplianceService {
     List<ComplianceResponse> getComplianceByTaxpayerId(Long taxpayerId);
 
     List<ComplianceResponse> getByResult(String result);
+
+    ComplianceDashboardResponse getDashboardSummary();
 }

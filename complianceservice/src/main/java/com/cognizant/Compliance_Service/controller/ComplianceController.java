@@ -1,10 +1,12 @@
 package com.cognizant.Compliance_Service.controller;
 
+import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
 import com.cognizant.Compliance_Service.dto.ComplianceResponse;
 import com.cognizant.Compliance_Service.dto.CreateComplianceRequest;
 import com.cognizant.Compliance_Service.dto.UpdateComplianceRequest;
 import com.cognizant.Compliance_Service.service.ComplianceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +17,11 @@ import java.util.List;
 public class ComplianceController {
 
     private final ComplianceService complianceService;
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ComplianceDashboardResponse> getDashboardSummary() {
+        return ResponseEntity.ok(complianceService.getDashboardSummary());
+    }
 
     @PostMapping
     public ComplianceResponse createCompliance(@RequestBody CreateComplianceRequest request) {

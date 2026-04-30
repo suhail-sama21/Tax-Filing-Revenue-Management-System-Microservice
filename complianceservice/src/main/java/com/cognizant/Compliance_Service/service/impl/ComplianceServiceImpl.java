@@ -3,6 +3,7 @@ package com.cognizant.Compliance_Service.service.impl;
 import com.cognizant.Compliance_Service.client.PaymentClient;
 import com.cognizant.Compliance_Service.client.TaxFilingClient;
 import com.cognizant.Compliance_Service.client.TaxpayerClient;
+import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
 import com.cognizant.Compliance_Service.dto.ComplianceResponse;
 import com.cognizant.Compliance_Service.dto.CreateComplianceRequest;
 import com.cognizant.Compliance_Service.dto.UpdateComplianceRequest;
@@ -17,10 +18,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ComplianceServiceImpl implements ComplianceService {
+public abstract class ComplianceServiceImpl implements ComplianceService {
 
     private final ComplianceRecordRepository complianceRecordRepository;
 
@@ -28,6 +31,32 @@ public class ComplianceServiceImpl implements ComplianceService {
     private final TaxpayerClient taxpayerClient;
     private final TaxFilingClient taxFilingClient;
     private final PaymentClient paymentClient;
+
+    @Override
+    public ComplianceDashboardResponse getDashboardSummary() {
+
+        long totalChecks = complianceRecordRepository.count();
+
+        long pendingReviews = complianceRecordRepository.countByResultIgnoreCase("Pending");
+
+        long nonCompliant = complianceRecordRepository.countByResultIgnoreCase("Non-Compliant");
+
+        long compliant = complianceRecordRepository.countByResultIgnoreCase("Compliant");
+
+        double systemHealth = 0.0;
+
+        if (totalChecks > 0) {
+            systemHealth = ((double) compliant / totalChecks) * 100;
+        }
+
+        return ComplianceDashboardResponse.builder()
+                .totalChecks(totalChecks)
+                .pendingReviews(pendingReviews)
+                .nonCompliant(nonCompliant)
+                .compliant(compliant)
+                .systemHealth(systemHealth)
+                .build();
+    }
 
     @Override
     public List<ComplianceResponse> getAllCompliance() {
