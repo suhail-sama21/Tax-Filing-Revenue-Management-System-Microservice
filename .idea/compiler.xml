@@ -30,17 +30,11 @@
         <module name="auditservice" />
         <module name="taxFilingService" />
         <module name="service-registry" />
-        <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
         <module name="userService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="authService" target="21" />
-      <module name="complianceservice (1)" target="21" />
-      <module name="notificationService (1) (com.cognizant.notificationService)" target="21" />
-      <module name="revenueService" target="21" />
-      <module name="taxpayerRegistrationService" target="21" />
-      <module name="taxpayerService (1)" target="21" />
+      <module name="springConfig" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -50,18 +44,13 @@
       <module name="auditservice" options="-parameters" />
       <module name="authenticationService" options="-parameters" />
       <module name="complianceservice" options="-parameters" />
-      <module name="complianceservice (1)" options="-parameters" />
       <module name="notificationService" options="-parameters" />
-      <module name="notificationService (1) (com.cognizant.notificationService)" options="-parameters" />
       <module name="paymentService" options="-parameters" />
       <module name="reportingService" options="-parameters" />
-      <module name="revenueService" options="-parameters" />
       <module name="service-registry" options="-parameters" />
       <module name="springConfig" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
-      <module name="taxpayerService (1)" options="-parameters" />
-      <module name="taxpayerService (1) (com.cognizant.taxpayerService)" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
   </component>

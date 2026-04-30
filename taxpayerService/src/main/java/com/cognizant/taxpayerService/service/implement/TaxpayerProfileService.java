@@ -9,8 +9,12 @@ import com.cognizant.taxpayerService.entity.TaxpayerDocument;
 import com.cognizant.taxpayerService.exception.GlobalExceptionHandler.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -67,6 +71,8 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
 
     public TaxpayerResponse updateProfile(Long userId, UpdateTaxpayerProfileRequestDto request) {
         log.info("Forwarding profile update for User ID: {} to User Service", userId);
+
+
         try {
             userServiceClient.updateUserProfile(userId, request);
         } catch (Exception e) {
@@ -85,8 +91,35 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
     @Transactional
     public TaxpayerDocumentResponseDto uploadDocument(Long userId, DocumentUploadRequestDto request) {
         Taxpayer taxpayer = taxpayerRepository.findById(userId).orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + userId));
+        List<TaxpayerDocument> existingDocs = documentRepository.findByTaxpayer(taxpayer);
+        if (existingDocs.stream().anyMatch(d -> d.getDocType().equals(request.getDocType()))) {
+            throw new DocumentTypeAlreadyExistsException("Document type '" + request.getDocType() + "' already exists for this taxpayer");
+        }
+        if (existingDocs.size() >= 2) {
+            throw new MaximumDocumentsExceededException("Maximum of 2 documents allowed per taxpayer");
+        }
         TaxpayerDocument document = TaxpayerDocument.builder()
                 .taxpayer(taxpayer).docType(request.getDocType()).fileUri(request.getFileUri()).verificationStatus("Pending").build();
+        return convertToDto(documentRepository.save(document));
+    }
+
+    @Transactional
+    public TaxpayerDocumentResponseDto updateDocument(Long userId, Long documentId, DocumentUploadRequestDto request) {
+        Taxpayer taxpayer = taxpayerRepository.findById(userId).orElseThrow(() -> new TaxpayerNotFoundException("Taxpayer not found for user ID: " + userId));
+        TaxpayerDocument document = documentRepository.findById(documentId).orElseThrow(() -> new DocumentNotFoundException("Document not found with ID: " + documentId));
+        if (!document.getTaxpayer().getUserId().equals(userId)) {
+            throw new DocumentOwnershipException("Document does not belong to this taxpayer");
+        }
+        // If changing docType, check if new docType already exists for other documents
+        if (!document.getDocType().equals(request.getDocType())) {
+            List<TaxpayerDocument> existingDocs = documentRepository.findByTaxpayer(taxpayer);
+            if (existingDocs.stream().anyMatch(d -> !d.getId().equals(documentId) && d.getDocType().equals(request.getDocType()))) {
+                throw new DocumentTypeAlreadyExistsException("Document type '" + request.getDocType() + "' already exists for this taxpayer");
+            }
+        }
+        document.setDocType(request.getDocType());
+        document.setFileUri(request.getFileUri());
+        document.setVerificationStatus("Pending");
         return convertToDto(documentRepository.save(document));
     }
 
@@ -136,6 +169,9 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
         TaxpayerDocument updatedDocument = documentRepository.save(document);
 
         return convertToDto(updatedDocument);
+    }
+    public String getMailForUserID(Long userId){
+        return userServiceClient.getUserById(userId).getEmail();
     }
 
     @Override
