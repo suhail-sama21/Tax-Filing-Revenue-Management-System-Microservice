@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="SpringConfigApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+  <configuration default="false" name="SpringConfigApplication - 2" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <envs>
-      <env name="user" value="giridharang2-lang" />
-      <env name="password" value="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" />
+      <env name="username" value="RohithKumaravel" />
+      <env name="paswword" value="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" />
     </envs>
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
     <module name="springConfig" />
