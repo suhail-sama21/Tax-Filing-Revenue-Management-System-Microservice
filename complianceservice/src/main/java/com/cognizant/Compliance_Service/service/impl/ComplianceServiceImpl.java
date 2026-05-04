@@ -23,7 +23,7 @@ import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public abstract class ComplianceServiceImpl implements ComplianceService {
+public class ComplianceServiceImpl implements ComplianceService {
 
     private final ComplianceRecordRepository complianceRecordRepository;
 

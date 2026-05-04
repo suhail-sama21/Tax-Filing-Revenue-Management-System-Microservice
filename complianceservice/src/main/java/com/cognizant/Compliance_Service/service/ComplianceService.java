@@ -5,9 +5,9 @@ import com.cognizant.Compliance_Service.dto.ComplianceResponse;
 import com.cognizant.Compliance_Service.dto.CreateComplianceRequest;
 import com.cognizant.Compliance_Service.dto.UpdateComplianceRequest;
 import com.cognizant.Compliance_Service.dto.ComplianceDashboardResponse;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 public interface ComplianceService {
     List<ComplianceResponse> getAllCompliance();
 
