@@ -13,7 +13,7 @@
         <module name="apiGateway" />
         <module name="springConfig" />
       </profile>
-      <profile name="Annotation profile for userService" enabled="true">
+      <profile name="Annotation profile for taxpayerService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -33,9 +33,6 @@
         <module name="userService" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="springConfig" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
