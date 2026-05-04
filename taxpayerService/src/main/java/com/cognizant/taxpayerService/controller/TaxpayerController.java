@@ -19,12 +19,13 @@ import java.util.List;
 @RequestMapping("/api/taxpayers")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class TaxpayerController {
 
     private final TaxpayerProfileService service;
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('INTERNAL')")
-    public ResponseEntity<String> getTaxpayerById(@PathVariable Long id){
+    public ResponseEntity<String> getTaxpayerTypeById(@PathVariable Long id){
         return ResponseEntity.ok(service.getTaxPayerType(id));
     }
 
@@ -49,13 +50,12 @@ public class TaxpayerController {
             @PathVariable Long userId,
             @Valid @RequestBody UpdateTaxpayerProfileRequestDto request) {
         // Verify the authenticated user is updating their own profile
-        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!currentUserId.equals(userId.toString())) {
-            log.warn("Unauthorized profile update attempt: User {} tried to update profile for user {}", currentUserId, userId);
+        String jwtEmailId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!jwtEmailId.equals(service.getMailForUserID(userId))) {
+            log.warn("Unauthorized profile update attempt: User {} tried to update profile for user {}", jwtEmailId, userId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile");
         }
-
-        return ResponseEntity.ok(service.updateProfile(userId, request));
+        return ResponseEntity.ok(service.updateProfile(userId,request));
     }
 
     @PostMapping("/user/{userId}/documents/upload")
@@ -64,7 +64,7 @@ public class TaxpayerController {
             @PathVariable Long userId, @Valid @RequestBody DocumentUploadRequestDto request) {
         // Verify the authenticated user is uploading documents for themselves
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!currentUserId.equals(userId.toString())) {
+        if (!currentUserId.equals(service.getMailForUserID(userId))) {
             log.warn("Unauthorized document upload attempt: User {} tried to upload for user {}", currentUserId, userId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only upload documents for yourself");
         }
@@ -72,12 +72,29 @@ public class TaxpayerController {
         return new ResponseEntity<>(service.uploadDocument(userId, request), HttpStatus.CREATED);
     }
 
+    @PutMapping("/user/{userId}/documents/{documentId}")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    public ResponseEntity<TaxpayerDocumentResponseDto> updateDocument(
+            @PathVariable Long userId,
+            @PathVariable Long documentId,
+            @Valid @RequestBody DocumentUploadRequestDto request) {
+        System.out.println("inside controller");
+        // Verify the authenticated user is updating their own document
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!currentUserId.equals(service.getMailForUserID(userId))) {
+            log.warn("Unauthorized document update attempt: User {} tried to update for user {}", currentUserId, userId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own documents");
+        }
+
+        return ResponseEntity.ok(service.updateDocument(userId, documentId, request));
+    }
+
     @GetMapping("/user/{userId}/documents")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<List<TaxpayerDocumentResponseDto>> getDocuments(@PathVariable Long userId) {
         // Verify the authenticated user is accessing their own documents
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!currentUserId.equals(userId.toString())) {
+        if (!currentUserId.equals(service.getMailForUserID(userId))) {
             log.warn("Unauthorized document access attempt: User {} tried to access documents for user {}", currentUserId, userId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your own documents");
         }
@@ -90,7 +107,7 @@ public class TaxpayerController {
     public ResponseEntity<Void> deleteDocument(@PathVariable Long userId, @PathVariable Long documentId) {
         // Verify the authenticated user is deleting their own document
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!currentUserId.equals(userId.toString())) {
+        if (!currentUserId.equals(service.getMailForUserID(userId))) {
             log.warn("Unauthorized document deletion attempt: User {} tried to delete for user {}", currentUserId, userId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own documents");
         }
@@ -100,13 +117,18 @@ public class TaxpayerController {
     }
 
     @PatchMapping("/user/{userId}/documents/{documentId}/verify")
-    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR')")
     public ResponseEntity<TaxpayerDocumentResponseDto> updateDocumentStatus(
             @PathVariable Long userId,
             @PathVariable Long documentId,
             @Valid @RequestBody DocumentVerificationRequestDto request) {
-        // Only COMPLIANCE role can verify documents
-        log.info("Document verification by compliance officer for document {} of user {}", documentId, userId);
+        // Only OFFICER and ADMINISTRATOR roles can verify documents
+        log.info("Document verification by officer/admin for document {} of user {}", documentId, userId);
         return ResponseEntity.ok(service.updateDocumentStatus(userId, documentId, request.getStatus()));
+    }
+
+    @PatchMapping("/{userId}/changePassword")
+    public ResponseEntity<String> changePassword(@PathVariable Long userId,@RequestBody PasswordDto passwordDto){
+        return service.changePassword(userId, passwordDto);
     }
 }
