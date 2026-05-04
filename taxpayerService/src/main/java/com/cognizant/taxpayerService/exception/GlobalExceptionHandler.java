@@ -98,6 +98,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
+    @ExceptionHandler(DocumentTypeAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleDocumentTypeAlreadyExists(DocumentTypeAlreadyExistsException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(MaximumDocumentsExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaximumDocumentsExceeded(MaximumDocumentsExceededException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<Map<String, Object>> handleFileUpload(FileUploadException ex) {
         Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
@@ -288,6 +300,18 @@ public class GlobalExceptionHandler {
 
         public FileUploadException(String message, Throwable cause) {
             super(message, cause);
+        }
+    }
+
+    public static class DocumentTypeAlreadyExistsException extends GlobalServiceException {
+        public DocumentTypeAlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+
+    public static class MaximumDocumentsExceededException extends GlobalServiceException {
+        public MaximumDocumentsExceededException(String message) {
+            super(message);
         }
     }
 }

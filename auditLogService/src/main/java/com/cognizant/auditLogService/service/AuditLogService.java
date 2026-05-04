@@ -1,6 +1,7 @@
 package com.cognizant.auditLogService.service;
 
 import com.cognizant.auditLogService.entity.AuditLog;
+import com.cognizant.userService.entity.User;
 
 import java.util.List;
 

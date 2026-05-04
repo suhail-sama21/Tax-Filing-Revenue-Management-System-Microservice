@@ -1,5 +1,6 @@
 package com.cognizant.userService.service;
 
+import com.cognizant.userService.dto.PasswordDto;
 import com.cognizant.userService.dto.UpdateUserProfileRequest;
 import com.cognizant.userService.dto.UserRegistrationRequest;
 import com.cognizant.userService.entity.User;
@@ -7,6 +8,8 @@ import com.cognizant.userService.dao.UserRepository;
 import com.cognizant.userService.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,6 +48,7 @@ public class UserService {
     }
 
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
+        log.info("reached updateprofile");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
 
@@ -59,5 +63,24 @@ public class UserService {
         if(user==null)
                 throw new BadCredentialsException("user not found with name "+username);
         return user;
+    }
+
+    public ResponseEntity<String> changePassword(Long userId, PasswordDto passwordDto) {
+        User user = userRepository.findById(userId).get();
+        if(user==null) {
+            log.info("user not found with id {}",userId);
+            throw new BadCredentialsException("user not found with id " + userId);
+        }else {
+            if(passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+                userRepository.save(user);
+                log.info("user change password successful");
+            }
+            else{
+                log.info("user change password failed");
+                throw new BadCredentialsException("The password is incorrect");
+            }
+        }
+        return ResponseEntity.ok("Password Changed Successfully");
     }
 }
