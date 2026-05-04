@@ -151,6 +151,11 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
                 .uploadedDate(document.getUploadedDate()) // <-- ADD THIS LINE
                 .build();
     }
+
+    public ResponseEntity<String> changePassword(Long userId, PasswordDto passwordDto){
+        return new ResponseEntity<String>(userServiceClient.changePassword(userId, passwordDto), HttpStatus.OK);
+    }
+
     @Transactional
     public TaxpayerDocumentResponseDto updateDocumentStatus(Long userId, Long documentId, String newStatus) {
         log.info("Updating verification status for doc {} to {}", documentId, newStatus);
