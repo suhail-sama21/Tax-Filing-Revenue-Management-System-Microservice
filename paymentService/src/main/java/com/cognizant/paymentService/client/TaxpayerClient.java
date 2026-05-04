@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "TAXPAYER-SERVICE",configuration = FeignClientInterceptor.class)
 public interface TaxpayerClient {
     @GetMapping("/api/taxpayers/{id}")
-    String getTaxpayerById(@PathVariable("id") Long id);
+    String getTaxpayerTypeById(@PathVariable("id") Long id);
 }
