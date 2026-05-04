@@ -152,7 +152,7 @@ public class PaymentServiceImpl implements PaymentService {
             records = records.stream()
                     .filter(r -> {
                         try {
-                            var taxpayer = taxpayerClient.getTaxpayerById(r.getTaxpayerId());
+                            var taxpayer = taxpayerClient.getTaxpayerTypeById(r.getTaxpayerId());
                             return taxpayerType.equalsIgnoreCase(taxpayer);
                         } catch (Exception e) {
                             return false;

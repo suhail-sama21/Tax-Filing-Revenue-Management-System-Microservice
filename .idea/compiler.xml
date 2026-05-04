@@ -13,35 +13,26 @@
         <module name="apiGateway" />
         <module name="springConfig" />
       </profile>
-      <profile name="Annotation profile for notificationService" enabled="true">
+      <profile name="Annotation profile for taxpayerService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
-        <module name="authenticationService" />
-        <module name="paymentService" />
-        <module name="notificationService" />
-        <module name="taxFilingService" />
-        <module name="notificationService (1) (com.cognizant.notificationService)" />
-        <module name="userService" />
         <module name="reportingService" />
         <module name="taxpayerService" />
+        <module name="authenticationService" />
+        <module name="paymentService" />
         <module name="complianceservice" />
+        <module name="notificationService" />
         <module name="auditLogService" />
         <module name="auditservice" />
+        <module name="taxFilingService" />
         <module name="service-registry" />
-        <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
+        <module name="userService" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="authService" target="21" />
-      <module name="complianceservice (1)" target="21" />
-      <module name="revenueService" target="21" />
-      <module name="taxpayerRegistrationService" target="21" />
-      <module name="taxpayerService (1)" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -50,18 +41,13 @@
       <module name="auditservice" options="-parameters" />
       <module name="authenticationService" options="-parameters" />
       <module name="complianceservice" options="-parameters" />
-      <module name="complianceservice (1)" options="-parameters" />
       <module name="notificationService" options="-parameters" />
-      <module name="notificationService (1) (com.cognizant.notificationService)" options="-parameters" />
       <module name="paymentService" options="-parameters" />
       <module name="reportingService" options="-parameters" />
-      <module name="revenueService" options="-parameters" />
       <module name="service-registry" options="-parameters" />
       <module name="springConfig" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
-      <module name="taxpayerService (1)" options="-parameters" />
-      <module name="taxpayerService (1) (com.cognizant.taxpayerService)" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
   </component>

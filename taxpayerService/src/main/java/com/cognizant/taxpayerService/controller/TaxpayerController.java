@@ -19,12 +19,13 @@ import java.util.List;
 @RequestMapping("/api/taxpayers")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class TaxpayerController {
 
     private final TaxpayerProfileService service;
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('INTERNAL')")
-    public ResponseEntity<String> getTaxpayerById(@PathVariable Long id){
+    public ResponseEntity<String> getTaxpayerTypeById(@PathVariable Long id){
         return ResponseEntity.ok(service.getTaxPayerType(id));
     }
 
@@ -71,6 +72,23 @@ public class TaxpayerController {
         return new ResponseEntity<>(service.uploadDocument(userId, request), HttpStatus.CREATED);
     }
 
+    @PutMapping("/user/{userId}/documents/{documentId}")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    public ResponseEntity<TaxpayerDocumentResponseDto> updateDocument(
+            @PathVariable Long userId,
+            @PathVariable Long documentId,
+            @Valid @RequestBody DocumentUploadRequestDto request) {
+        System.out.println("inside controller");
+        // Verify the authenticated user is updating their own document
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!currentUserId.equals(service.getMailForUserID(userId))) {
+            log.warn("Unauthorized document update attempt: User {} tried to update for user {}", currentUserId, userId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own documents");
+        }
+
+        return ResponseEntity.ok(service.updateDocument(userId, documentId, request));
+    }
+
     @GetMapping("/user/{userId}/documents")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<List<TaxpayerDocumentResponseDto>> getDocuments(@PathVariable Long userId) {
@@ -99,13 +117,18 @@ public class TaxpayerController {
     }
 
     @PatchMapping("/user/{userId}/documents/{documentId}/verify")
-    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR')")
     public ResponseEntity<TaxpayerDocumentResponseDto> updateDocumentStatus(
             @PathVariable Long userId,
             @PathVariable Long documentId,
             @Valid @RequestBody DocumentVerificationRequestDto request) {
-        // Only COMPLIANCE role can verify documents
-        log.info("Document verification by compliance officer for document {} of user {}", documentId, userId);
+        // Only OFFICER and ADMINISTRATOR roles can verify documents
+        log.info("Document verification by officer/admin for document {} of user {}", documentId, userId);
         return ResponseEntity.ok(service.updateDocumentStatus(userId, documentId, request.getStatus()));
+    }
+
+    @PatchMapping("/{userId}/changePassword")
+    public ResponseEntity<String> changePassword(@PathVariable Long userId,@RequestBody PasswordDto passwordDto){
+        return service.changePassword(userId, passwordDto);
     }
 }
