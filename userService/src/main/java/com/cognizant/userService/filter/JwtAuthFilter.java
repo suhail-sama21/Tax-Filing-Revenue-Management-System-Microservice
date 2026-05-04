@@ -95,15 +95,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             resolver.resolveException(request, response, null, e);
         }
-
-        catch (io.jsonwebtoken.JwtException | org.springframework.security.core.AuthenticationException e) {
-            // This catches ExpiredJwtException, SignatureException, MalformedJwtException, etc.
-            log.error("JWT Authentication failed: {}", e.getMessage());
-            resolver.resolveException(request, response, null, e);
-        }
-        catch (Exception e) {
-            // Catch-all for unexpected errors during filter execution
-            resolver.resolveException(request, response, null, e);
-        }
     }
 }

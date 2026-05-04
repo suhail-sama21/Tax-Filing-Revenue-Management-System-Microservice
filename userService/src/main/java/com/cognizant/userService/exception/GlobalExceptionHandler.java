@@ -122,18 +122,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 
     }
-
-    @ExceptionHandler({
-            io.jsonwebtoken.security.SignatureException.class,
-            io.jsonwebtoken.MalformedJwtException.class,
-            org.springframework.security.core.AuthenticationException.class
-    })
-    public ResponseEntity<Map<String, Object>> handleAuthenticationServiceExceptions(Exception ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", Instant.now());
-        body.put("status", 401);
-        body.put("error", "Unauthorized");
-        body.put("message", "Invalid or malformed security token.");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
 }
