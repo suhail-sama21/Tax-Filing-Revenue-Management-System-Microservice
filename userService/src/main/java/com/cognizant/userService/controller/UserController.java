@@ -26,13 +26,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('TAXPAYER')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     // --- NEW ENDPOINT FOR FEIGN CLIENT ---
     @PutMapping("/{id}/profile")
-    @PreAuthorize("hasRole('TAXPAYER')")
     public ResponseEntity<User> updateProfile(
             @PathVariable Long id,
             @RequestBody UpdateUserProfileRequest request) {
