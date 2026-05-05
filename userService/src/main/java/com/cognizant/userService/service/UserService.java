@@ -26,7 +26,7 @@ public class UserService {
         log.info("Registering new user with email: {}", request.getEmail());
         if (userRepository.existsByEmail(request.getEmail())) {
             // Use specific exception
-            throw new BadCredentialsException("user already existing with email "+request.getEmail());
+            throw new RuntimeException("user already exists with email "+request.getEmail());
         }
 
         User user = User.builder()
@@ -61,7 +61,7 @@ public class UserService {
     public User getUserByName(String username) {
         User user = userRepository.findByEmail(username);
         if(user==null)
-                throw new BadCredentialsException("user not found with name "+username);
+                throw new BadCredentialsException("user not found with email "+username);
         return user;
     }
 

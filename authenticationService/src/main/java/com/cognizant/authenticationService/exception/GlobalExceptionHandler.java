@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +25,25 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @ExceptionHandler(CustomDownStreamException.class)
     public ResponseEntity<Object> handleCustomDownstream(CustomDownStreamException e) {
-        log.info("INTERCEPTED: CustomDownStreamException with status {}", e.getStatus());
         try {
-            // Parse the clean JSON and return it as the ONLY body
-            JsonNode node = objectMapper.readTree(e.getCleanJson());
-            return ResponseEntity.status(e.getStatus()).body(node);
+            String rawJson = e.getCleanJson();
+            log.info(rawJson);
+            if (rawJson == null || rawJson.isBlank()) {
+                return ResponseEntity.status(e.getStatus()).body(Map.of("message", "Downstream error occurred"));
+            }
+
+            // FIX: Read the JSON into a standard Java Object/Map instead of a JsonNode
+            Object body = objectMapper.readValue(rawJson, Object.class);
+
+            return ResponseEntity.status(e.getStatus()).body(body);
         } catch (Exception ex) {
-            // If it's not valid JSON, return it as a string but with the CORRECT status
+            log.error("Failed to parse JSON: {}", ex.getMessage());
             return ResponseEntity.status(e.getStatus()).body(e.getCleanJson());
         }
     }
