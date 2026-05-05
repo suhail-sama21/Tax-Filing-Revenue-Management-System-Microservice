@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -27,6 +28,8 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                // RIGHT
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
@@ -38,6 +41,7 @@ public class WebSecurityConfig {
 
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/username/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/users/**").permitAll()
                         .requestMatchers("/api/users/**").hasAnyRole("INTERNAL","TAXPAYER")
                         .anyRequest().authenticated()
                 )
@@ -48,6 +52,27 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+
+        // Allow your Angular frontend
+        configuration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
+
+        // Allow standard HTTP methods
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        // Allow all headers (including Authorization for your JWT)
+        configuration.setAllowedHeaders(java.util.List.of("*"));
+
+        // Allow credentials (important if you use cookies or specific auth headers)
+        configuration.setAllowCredentials(true);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
 
