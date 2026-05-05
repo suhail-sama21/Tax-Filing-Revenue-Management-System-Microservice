@@ -10,17 +10,20 @@ import java.nio.charset.StandardCharsets;
 public class FeignErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {
-        // This 'body' is just the clean JSON from the User Service
         String body = "";
         try {
             if (response.body() != null) {
-                body = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
+                // Use the raw InputStream to ensure we get everything
+                byte[] bodyBytes = response.body().asInputStream().readAllBytes();
+                body = new String(bodyBytes, StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
-            return new Exception("Failed to read body");
+            body = "{\"message\": \"Failed to read downstream body\"}";
         }
 
-        // Return a custom exception that your GlobalExceptionHandler can catch
+        // IMPORTANT: Log here to see if the Decoder itself is getting the data
+        System.out.println("DEBUG DECODER: Status " + response.status() + " Body: " + body);
+
         return new CustomDownStreamException(response.status(), body);
     }
 }
