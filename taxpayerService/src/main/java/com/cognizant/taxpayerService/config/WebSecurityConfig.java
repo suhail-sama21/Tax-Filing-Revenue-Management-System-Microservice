@@ -33,7 +33,6 @@ public class WebSecurityConfig {
                 // RIGHT
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrfConfig -> csrfConfig.disable())
-                .csrf(csrfConfig -> csrfConfig.disable())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
