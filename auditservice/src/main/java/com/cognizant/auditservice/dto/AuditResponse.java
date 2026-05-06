@@ -19,6 +19,7 @@ public class AuditResponse {
     private String scope;
     private String findings;
     private StatusBasic status;
+    private Long taxpayerId;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private Instant createdAt;

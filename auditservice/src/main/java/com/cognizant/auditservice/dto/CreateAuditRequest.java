@@ -11,6 +11,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CreateAuditRequest {
+
+    @NotNull(message = "A target taxpayer must be specified")
+    private Long taxpayerId; // <-- ADD THIS
+
     @NotNull
     private Long officerId;
 
