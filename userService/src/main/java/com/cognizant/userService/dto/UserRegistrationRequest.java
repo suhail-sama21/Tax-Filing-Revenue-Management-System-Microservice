@@ -1,9 +1,8 @@
 package com.cognizant.userService.dto;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import java.time.LocalDate;
 
 @Data
 public class UserRegistrationRequest {
@@ -32,8 +31,14 @@ public class UserRegistrationRequest {
     @Size(max = 500, message = "Address must not exceed 500 characters")
     private String address;
 
-    @NotBlank(message = "Contact info is required")
-    @Size(max = 200, message = "Contact info must not exceed 200 characters")
-    private String contactInfo;
- // Added
+    // 1. Modified contactInfo to panNumber with Regex validation
+    @NotBlank(message = "PAN number is required")
+    @Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}",
+            message = "Invalid PAN format. Expected: ABCDE1234F")
+    private String panNumber;
+
+    // 2. Added Date of Birth
+    @NotNull(message = "Date of birth is required")
+    @Past(message = "Date of birth must be in the past")
+    private LocalDate dob;
 }

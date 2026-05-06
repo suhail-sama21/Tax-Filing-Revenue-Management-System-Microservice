@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // Make sure to import this!
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,13 +20,11 @@ public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final HandlerExceptionResolver resolver;
-
     public WebSecurityConfig(JwtAuthFilter jwtAuthFilter,
                              @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.resolver = resolver;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -40,18 +37,20 @@ public class WebSecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // THE MAGIC LINE: Let Angular's preflight check pass without a token!
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Your original role-based rules
-                        .requestMatchers("/api/payments/pay", "/api/payments/retry/**").hasAnyRole("TAXPAYER","INTERNAL")
-                        .requestMatchers("/api/payments/history/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
-                        .requestMatchers("/api/payments/**").hasAnyRole("OFFICER","INTERNAL")
-
-                        .anyRequest().authenticated()
+                                .requestMatchers("/api/payments/pay", "/api/payments/retry/**").hasAnyRole("TAXPAYER","INTERNAL")
+                                .requestMatchers("/api/payments/**").hasAnyRole("OFFICER", "AUDITOR", "INTERNAL")
+                                .requestMatchers("/api/payments/history/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
+                                .anyRequest().authenticated()
+//
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        log.info("Security filter chain configured successfully for Payment Service");
+        log.info("Security filter chain configured successfully for Taxpayer Service");
         return httpSecurity.build();
     }
+//    @Bean
+//    public PasswordEncoder passwordEncoder(){
+//        return new BCryptPasswordEncoder();
+//    }
 }
+

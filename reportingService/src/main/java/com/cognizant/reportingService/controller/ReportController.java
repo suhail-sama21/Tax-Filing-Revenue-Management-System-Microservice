@@ -5,6 +5,7 @@ import com.cognizant.reportingService.dto.AuditDto;
 import com.cognizant.reportingService.dto.PaymentMetricsResponse;
 import com.cognizant.reportingService.dto.RevenueDashboardResponse;
 import com.cognizant.reportingService.service.ReportService;
+import com.cognizant.paymentService.dto.responsedto.PaymentResponseDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
@@ -70,5 +71,11 @@ public class ReportController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.csv\"")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(reportData);
+    }
+
+    @GetMapping("/payments/all")
+    public ResponseEntity<List<PaymentResponseDto>> getAllPayments() {
+        log.info("START: Fetching all payments for charts");
+        return ResponseEntity.ok(reportService.getAllPayments());
     }
 }

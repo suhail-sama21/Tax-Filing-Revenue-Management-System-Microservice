@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/taxpayers")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class TaxpayerController {
 
     private final TaxpayerProfileService service;

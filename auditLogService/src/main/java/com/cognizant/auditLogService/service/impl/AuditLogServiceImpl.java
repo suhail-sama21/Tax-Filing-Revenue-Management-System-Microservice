@@ -4,6 +4,7 @@ package com.cognizant.auditLogService.service.impl;
 import com.cognizant.auditLogService.entity.AuditLog;
 import com.cognizant.auditLogService.repository.AuditLogRepository;
 import com.cognizant.auditLogService.service.AuditLogService;
+import com.cognizant.userService.dao.UserRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

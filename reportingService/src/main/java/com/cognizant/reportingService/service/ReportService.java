@@ -1,5 +1,6 @@
 package com.cognizant.reportingService.service;
 
+import com.cognizant.paymentService.dto.responsedto.PaymentResponseDto;
 import com.cognizant.reportingService.dto.AuditDashboardResponse;
 import com.cognizant.reportingService.dto.AuditDto;
 import com.cognizant.reportingService.dto.PaymentMetricsResponse;
@@ -17,4 +18,6 @@ public interface ReportService {
     List<AuditDto> getCompletedAudits();
 
     byte[] generateCustomReport(LocalDate startDate, LocalDate endDate, String reportType, List<String> metrics);
+
+    List<PaymentResponseDto> getAllPayments();
 }

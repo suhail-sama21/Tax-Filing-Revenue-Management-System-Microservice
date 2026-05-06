@@ -95,7 +95,7 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
         if (existingDocs.stream().anyMatch(d -> d.getDocType().equals(request.getDocType()))) {
             throw new DocumentTypeAlreadyExistsException("Document type '" + request.getDocType() + "' already exists for this taxpayer");
         }
-        if (existingDocs.size() >= 2) {
+        if (existingDocs.size() >= 3) {
             throw new MaximumDocumentsExceededException("Maximum of 2 documents allowed per taxpayer");
         }
         TaxpayerDocument document = TaxpayerDocument.builder()
