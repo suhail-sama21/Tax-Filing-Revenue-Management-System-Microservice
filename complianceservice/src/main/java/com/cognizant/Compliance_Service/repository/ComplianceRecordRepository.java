@@ -10,4 +10,6 @@ public interface ComplianceRecordRepository extends JpaRepository<ComplianceReco
     List<ComplianceRecord> findByTaxpayerId(Long taxpayerId);
 
     List<ComplianceRecord> findByResultIgnoreCase(String result);
+
+    long countByResultIgnoreCase(String result);
 }
