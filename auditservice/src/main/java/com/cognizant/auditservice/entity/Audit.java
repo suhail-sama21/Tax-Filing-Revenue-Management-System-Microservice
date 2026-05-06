@@ -33,4 +33,7 @@ public class Audit {
     @CreationTimestamp
     @Column(updatable = false)
     private Instant createdAt;
+
+    @Column(name = "taxpayer_id")
+    private Long taxpayerId;
 }

@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuditDashboardResponse {
+public class
+AuditDashboardResponse {
 
     private long totalCases;
     private long open;
