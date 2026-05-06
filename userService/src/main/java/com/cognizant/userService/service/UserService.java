@@ -24,9 +24,10 @@ public class UserService {
 
     public User registerUser(UserRegistrationRequest request) {
         log.info("Registering new user with email: {}", request.getEmail());
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            // Use specific exception
-            throw new RuntimeException("user already exists with email "+request.getEmail());
+            // Use specific exception for better error handling in the future
+            throw new RuntimeException("User already exists with email: " + request.getEmail());
         }
 
         User user = User.builder()
@@ -36,7 +37,8 @@ public class UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole() != null ? request.getRole() : "TAXPAYER")
                 .address(request.getAddress())
-                .contactInfo(request.getContactInfo())
+                .panNumber(request.getPanNumber())
+                .dob(request.getDob())
                 .build();
 
         return userRepository.save(user);
@@ -48,12 +50,15 @@ public class UserService {
     }
 
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
-        log.info("reached updateprofile");
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
+        log.info("Updating profile for user ID: {}", id);
 
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        // Update the new fields
         user.setAddress(request.getAddress());
-        user.setContactInfo(request.getContactInfo());
+        user.setPanNumber(request.getPanNumber()); // Changed from setContactInfo
+        user.setDob(request.getDob());             // Added DOB update support
 
         return userRepository.save(user);
     }
