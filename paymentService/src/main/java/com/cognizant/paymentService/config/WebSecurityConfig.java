@@ -37,12 +37,7 @@ public class WebSecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
-
-                                .requestMatchers("/api/payments/pay", "/api/payments/retry/**").hasAnyRole("TAXPAYER","INTERNAL")
-                                .requestMatchers("/api/payments/**").hasAnyRole("OFFICER", "AUDITOR", "INTERNAL")
-                                .requestMatchers("/api/payments/history/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
                                 .anyRequest().authenticated()
-//
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         log.info("Security filter chain configured successfully for Taxpayer Service");
