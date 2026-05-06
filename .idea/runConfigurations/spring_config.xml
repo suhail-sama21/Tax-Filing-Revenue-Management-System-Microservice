@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="spring-config" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <envs>
+      <env name="user" value="giridharang2-lang" />
+      <env name="password" value="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" />
+    </envs>
+    <module name="springConfig" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.springConfig.springConfig.SpringConfigApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

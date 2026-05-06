@@ -1,6 +1,7 @@
 package com.cognizant.taxpayerService.dto;
 
 import lombok.Data;
+import java.time.LocalDate;
 
 @Data
 public class UserDto {
@@ -10,7 +11,9 @@ public class UserDto {
     private String phone;
     private String role;
 
-    // --- ADD THESE TWO ---
     private String address;
-    private String contactInfo;
+    // 1. Rename to match the entity and other DTOs
+    private String panNumber;
+    // 2. Add the new date of birth field
+    private LocalDate dob;
 }

@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.time.LocalDate; // Added for DOB
 
 @Entity
 @Table(name = "`user`", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
@@ -32,12 +33,14 @@ public class User {
     @Column(name = "role", nullable = false, length = 40)
     private String role;
 
-    // --- NEW FIELDS MOVED FROM TAXPAYER ---
     @Column(name = "address", columnDefinition = "text")
     private String address;
 
-    @Column(name = "contact_info", columnDefinition = "text")
-    private String contactInfo;
+    @Column(name = "pan_number", length = 10)
+    private String panNumber;
+
+    @Column(name = "dob")
+    private LocalDate dob;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

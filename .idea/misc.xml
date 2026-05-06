@@ -4,21 +4,30 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/userService/pom.xml" />
-        <option value="$PROJECT_DIR$/taxpayerService/pom.xml" />
-        <option value="$PROJECT_DIR$/taxFilingService/pom.xml" />
-        <option value="$PROJECT_DIR$/springConfig/pom.xml" />
-        <option value="$PROJECT_DIR$/service-registry/pom.xml" />
-        <option value="$PROJECT_DIR$/reportingService/pom.xml" />
-        <option value="$PROJECT_DIR$/paymentService/pom.xml" />
-        <option value="$PROJECT_DIR$/notificationService/pom.xml" />
-        <option value="$PROJECT_DIR$/complianceservice/pom.xml" />
-        <option value="$PROJECT_DIR$/authenticationService/pom.xml" />
+        <option value="$PROJECT_DIR$/notificationService/notificationService/pom.xml" />
         <option value="$PROJECT_DIR$/auditservice/pom.xml" />
+        <option value="$PROJECT_DIR$/complianceservice/pom.xml" />
+        <option value="$PROJECT_DIR$/paymentService/pom.xml" />
+        <option value="$PROJECT_DIR$/reportingService/pom.xml" />
+        <option value="$PROJECT_DIR$/revenueService/pom.xml" />
+        <option value="$PROJECT_DIR$/taxFilingService/pom.xml" />
+        <option value="$PROJECT_DIR$/userService/pom.xml" />
+        <option value="$PROJECT_DIR$/service-registry/pom.xml" />
         <option value="$PROJECT_DIR$/auditLogService/pom.xml" />
+        <option value="$PROJECT_DIR$/taxpayerService/pom.xml" />
+        <option value="$PROJECT_DIR$/notificationService/pom.xml" />
         <option value="$PROJECT_DIR$/apiGateway/pom.xml" />
+        <option value="$PROJECT_DIR$/authenticationService/pom.xml" />
+        <option value="$PROJECT_DIR$/springConfig/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/revenueService/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" default="true" project-jdk-name="24" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
 </project>

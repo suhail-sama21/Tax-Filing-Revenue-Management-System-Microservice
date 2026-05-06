@@ -1,5 +1,6 @@
 package com.cognizant.userService.service;
 
+import com.cognizant.userService.dto.PasswordDto;
 import com.cognizant.userService.dto.UpdateUserProfileRequest;
 import com.cognizant.userService.dto.UserRegistrationRequest;
 import com.cognizant.userService.entity.User;
@@ -7,6 +8,8 @@ import com.cognizant.userService.dao.UserRepository;
 import com.cognizant.userService.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,9 +24,10 @@ public class UserService {
 
     public User registerUser(UserRegistrationRequest request) {
         log.info("Registering new user with email: {}", request.getEmail());
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            // Use specific exception
-            throw new BadCredentialsException("user already existing with email "+request.getEmail());
+            // Use specific exception for better error handling in the future
+            throw new RuntimeException("User already exists with email: " + request.getEmail());
         }
 
         User user = User.builder()
@@ -33,7 +37,8 @@ public class UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole() != null ? request.getRole() : "TAXPAYER")
                 .address(request.getAddress())
-                .contactInfo(request.getContactInfo())
+                .panNumber(request.getPanNumber())
+                .dob(request.getDob())
                 .build();
 
         return userRepository.save(user);
@@ -45,12 +50,15 @@ public class UserService {
     }
 
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
-        log.info("reached updateprofile");
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
+        log.info("Updating profile for user ID: {}", id);
 
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        // Update the new fields
         user.setAddress(request.getAddress());
-        user.setContactInfo(request.getContactInfo());
+        user.setPanNumber(request.getPanNumber()); // Changed from setContactInfo
+        user.setDob(request.getDob());             // Added DOB update support
 
         return userRepository.save(user);
     }
@@ -58,7 +66,26 @@ public class UserService {
     public User getUserByName(String username) {
         User user = userRepository.findByEmail(username);
         if(user==null)
-                throw new BadCredentialsException("user not found with name "+username);
+                throw new BadCredentialsException("user not found with email "+username);
         return user;
+    }
+
+    public ResponseEntity<String> changePassword(Long userId, PasswordDto passwordDto) {
+        User user = userRepository.findById(userId).get();
+        if(user==null) {
+            log.info("user not found with id {}",userId);
+            throw new BadCredentialsException("user not found with id " + userId);
+        }else {
+            if(passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+                userRepository.save(user);
+                log.info("user change password successful");
+            }
+            else{
+                log.info("user change password failed");
+                throw new BadCredentialsException("The password is incorrect");
+            }
+        }
+        return ResponseEntity.ok("Password Changed Successfully");
     }
 }

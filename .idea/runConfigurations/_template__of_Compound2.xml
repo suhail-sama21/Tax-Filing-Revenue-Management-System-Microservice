@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="true" type="CompoundRunConfigurationType">
+    <toRun name="api-gateway" type="SpringBootApplicationConfigurationType" />
+    <toRun name="audit-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="audit_log-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="authentication-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="compliance-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="notification-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="payment-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="reporting-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="service-registery" type="SpringBootApplicationConfigurationType" />
+    <toRun name="taxFiling-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="taxpayer-service" type="SpringBootApplicationConfigurationType" />
+    <toRun name="userService" type="SpringBootApplicationConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -4,11 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+import java.time.LocalDate; // Import for DOB
 
 @Data
 @Builder
@@ -39,7 +36,13 @@ public class UserDTO {
     @Size(max = 500, message = "Address must not exceed 500 characters")
     private String address;
 
-    @NotBlank(message = "Contact info is required")
-    @Size(max = 200, message = "Contact info must not exceed 200 characters")
-    private String contactInfo;
+    // 1. Rename contactInfo to panNumber and update validation
+    @NotBlank(message = "PAN number is required")
+    @Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}", message = "Invalid PAN format")
+    private String panNumber;
+
+    // 2. Add dob
+    @NotNull(message = "Date of birth is required")
+    @Past(message = "Date of birth must be in the past")
+    private LocalDate dob;
 }

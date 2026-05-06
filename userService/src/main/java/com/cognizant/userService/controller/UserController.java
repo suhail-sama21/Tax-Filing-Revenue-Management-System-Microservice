@@ -1,5 +1,6 @@
 package com.cognizant.userService.controller;
 
+import com.cognizant.userService.dto.PasswordDto;
 import com.cognizant.userService.dto.UpdateUserProfileRequest;
 import com.cognizant.userService.dto.UserRegistrationRequest;
 import com.cognizant.userService.entity.User;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
     private final UserService userService;
@@ -24,13 +26,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('TAXPAYER')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     // --- NEW ENDPOINT FOR FEIGN CLIENT ---
     @PutMapping("/{id}/profile")
-    @PreAuthorize("hasRole('TAXPAYER')")
     public ResponseEntity<User> updateProfile(
             @PathVariable Long id,
             @RequestBody UpdateUserProfileRequest request) {
@@ -41,4 +43,10 @@ public class UserController {
     public  ResponseEntity<User> getUserByUsername(@PathVariable String username){
         return ResponseEntity.ok(userService.getUserByName(username));
     }
+
+    @PatchMapping("/{userId}/changePassword")
+    public ResponseEntity<String> changePassword(@PathVariable Long userId,@RequestBody PasswordDto passwordDto){
+        return userService.changePassword(userId, passwordDto);
+    }
+
 }

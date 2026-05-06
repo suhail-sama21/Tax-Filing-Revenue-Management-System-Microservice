@@ -71,17 +71,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             String email = authUtil.extractUsername(token);
             String role = authUtil.extractRole(token);
-            log.info("Extracted email: {}, role: {} from JWT token", email, role);
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            log.info("Extracted email: {}, role: {} from JWT token", email, role);
+
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (authUtil.validateToken(token)) {
-                    List<SimpleGrantedAuthority> authorities =List.of(new SimpleGrantedAuthority(role));
+
+                    String authority = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+
+                    List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(authority));
+
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             email,
                             null,
                             authorities
                     );
-
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }

@@ -19,12 +19,13 @@ import java.util.List;
 @RequestMapping("/api/taxpayers")
 @RequiredArgsConstructor
 @Slf4j
+//@CrossOrigin(origins = "http://localhost:4200")
 public class TaxpayerController {
 
     private final TaxpayerProfileService service;
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('INTERNAL')")
-    public ResponseEntity<String> getTaxpayerById(@PathVariable Long id){
+    public ResponseEntity<String> getTaxpayerTypeById(@PathVariable Long id){
         return ResponseEntity.ok(service.getTaxPayerType(id));
     }
 
@@ -124,5 +125,10 @@ public class TaxpayerController {
         // Only OFFICER and ADMINISTRATOR roles can verify documents
         log.info("Document verification by officer/admin for document {} of user {}", documentId, userId);
         return ResponseEntity.ok(service.updateDocumentStatus(userId, documentId, request.getStatus()));
+    }
+
+    @PatchMapping("/{userId}/changePassword")
+    public ResponseEntity<String> changePassword(@PathVariable Long userId,@RequestBody PasswordDto passwordDto){
+        return service.changePassword(userId, passwordDto);
     }
 }
