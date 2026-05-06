@@ -12,7 +12,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
       </profile>
-      <profile name="Annotation profile for auditservice" enabled="true">
+      <profile name="Annotation profile for reportingService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,10 +20,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
         <module name="reportingService" />
-        <module name="taxpayerService" />
-        <module name="authenticationService" />
-        <module name="complianceservice" />
         <module name="paymentService" />
+        <module name="complianceservice" />
         <module name="notificationService" />
         <module name="auditLogService" />
         <module name="auditservice" />
@@ -31,6 +29,17 @@
         <module name="service-registry" />
         <module name="taxpayerService (1) (com.cognizant.taxpayerService)" />
         <module name="userService" />
+      </profile>
+      <profile name="Annotation profile for taxpayerService" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
+        </processorPath>
+        <module name="taxpayerService" />
+        <module name="authenticationService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -56,6 +65,7 @@
       <module name="reportingService" options="-parameters" />
       <module name="revenueService" options="-parameters" />
       <module name="service-registry" options="-parameters" />
+      <module name="springConfig" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />
       <module name="taxpayerService (1)" options="-parameters" />
