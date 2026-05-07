@@ -31,9 +31,9 @@ public class TaxpayerController {
 
     @PostMapping("/profile")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
-    public ResponseEntity<Taxpayer> createProfile(@RequestParam Long userId, @RequestParam(required = false) String type) {
-        log.info("Creating profile for userId: {}, type: {}", userId, type);
-        return new ResponseEntity<>(service.createBaseProfile(userId, type), HttpStatus.CREATED);
+    public void createProfile(@RequestParam String email, @RequestParam(required = false) String type) {
+        log.info("Creating profile for userId: {}, type: {}", email, type);
+        service.createBaseProfile(email, type);
     }
 
     @GetMapping("/user/{userId}/full-profile")

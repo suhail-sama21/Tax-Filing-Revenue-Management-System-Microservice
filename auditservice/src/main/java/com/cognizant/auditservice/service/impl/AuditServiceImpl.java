@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.cognizant.auditservice.dto.AuditDashboardResponse;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,6 +22,25 @@ import java.util.NoSuchElementException;
 public class AuditServiceImpl implements AuditService {
 
     private final AuditRepository auditRepository;
+
+    @Override
+    public AuditDashboardResponse getDashboardSummary() {
+
+        long totalCases = auditRepository.count();
+
+        long open = auditRepository.countByStatus(StatusBasic.Active);
+
+        long closed = auditRepository.countByStatus(StatusBasic.Inactive);
+
+        long inProgress = 0;
+
+        return AuditDashboardResponse.builder()
+                .totalCases(totalCases)
+                .open(open)
+                .inProgress(inProgress)
+                .closed(closed)
+                .build();
+    }
 
     @Override
     @Transactional

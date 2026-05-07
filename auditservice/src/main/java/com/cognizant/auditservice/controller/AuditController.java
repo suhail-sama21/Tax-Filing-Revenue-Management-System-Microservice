@@ -10,16 +10,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.cognizant.auditservice.dto.AuditDashboardResponse;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/audit")
+//@CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 @Slf4j
 public class AuditController {
 
     private final AuditService auditService;
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<AuditDashboardResponse> getDashboardSummary() {
+        return ResponseEntity.ok(auditService.getDashboardSummary());
+    }
 
     // --- Endpoint specifically hit by Compliance Service via Feign ---
     @PostMapping

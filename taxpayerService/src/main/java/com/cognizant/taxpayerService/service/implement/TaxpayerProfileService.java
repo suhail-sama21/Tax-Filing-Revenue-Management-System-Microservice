@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.cognizant.taxpayerService.dto.User;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -32,17 +33,26 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
     // --- PROFILE LOGIC ---
 
     @Transactional
-    public Taxpayer createBaseProfile(Long userId, String type) throws RuntimeException {
-        log.info("Creating base tax profile for User ID: {}", userId);
-        UserDto userDto=userServiceClient.getUserById(userId);
-        if(userDto==null)throw new RuntimeException("User not found in User Service for ID: "+userId);
+    public void createBaseProfile(String email, String type) throws RuntimeException {
+        log.info("Creating base tax profile for User ID: {}", email);
+        Long userId;
+        try {
+            userId = userServiceClient.getUserByUsername(email).getId();
+        } catch (Exception e) {
+            log.error("Failed to resolve user by email {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Unable to resolve user by email: " + email, e);
+        }
+        if (taxpayerRepository.findById(userId).isPresent()) {
+            log.info("Taxpayer profile already exists for User ID: {}", userId);
+            return;
+        }
         Taxpayer taxpayer = Taxpayer.builder()
-                .userId(userId) // Setting the ID explicitly
+                .userId(userId)
                 .type(type != null ? type : "Citizen")
                 .taxpayerIdNumber(generateUniqueTaxpayerId())
                 .build();
-
-        return taxpayerRepository.save(taxpayer);
+        taxpayerRepository.save(taxpayer);
+        log.info("Taxpayer profile created for User ID: {}", userId);
     }
 
     public TaxpayerResponse getFullTaxpayerProfile(Long userId) {
@@ -178,6 +188,7 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
     public String getMailForUserID(Long userId){
         return userServiceClient.getUserById(userId).getEmail();
     }
+
 
     @Override
     public String getTaxPayerType(Long id) {
