@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TaxpayerProfileService {
 
-    Taxpayer createBaseProfile(Long userId, String type);
+    void createBaseProfile(String email, String type);
 
     TaxpayerResponse getFullTaxpayerProfile(Long userId);
 
