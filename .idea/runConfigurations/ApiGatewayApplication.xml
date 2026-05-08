@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="username" value="Aditi-LNU9" />
+      <env name="password" value="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" />
+    </envs>
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+    <module name="apiGateway" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.cognizant.apiGateway.ApiGatewayApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.cognizant.apiGateway.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

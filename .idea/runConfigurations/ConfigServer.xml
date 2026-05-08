@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ConfigServer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <envs>
+      <env name="username" value="Aditi-LNU9" />
+      <env name="password" value="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" />
+    </envs>
+    <module name="springConfig" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.springConfig.springConfig.SpringConfigApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
