@@ -81,8 +81,6 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
 
     public TaxpayerResponse updateProfile(Long userId, UpdateTaxpayerProfileRequestDto request) {
         log.info("Forwarding profile update for User ID: {} to User Service", userId);
-
-
         try {
             userServiceClient.updateUserProfile(userId, request);
         } catch (Exception e) {

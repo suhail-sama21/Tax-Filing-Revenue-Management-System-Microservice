@@ -33,7 +33,7 @@ public class UserController {
 
     // --- NEW ENDPOINT FOR FEIGN CLIENT ---
     @PutMapping("/{id}/profile")
-    public ResponseEntity<User> updateProfile(
+    public ResponseEntity<User> updateUserProfile(
             @PathVariable Long id,
             @RequestBody UpdateUserProfileRequest request) {
         return ResponseEntity.ok(userService.updateUserProfile(id, request));
