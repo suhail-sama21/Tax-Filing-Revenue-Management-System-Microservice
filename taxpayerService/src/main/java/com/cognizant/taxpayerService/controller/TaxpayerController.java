@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/taxpayers")
 @RequiredArgsConstructor
 @Slf4j
-//@CrossOrigin(origins = "http://localhost:4200")
 public class TaxpayerController {
 
     private final TaxpayerProfileService service;
@@ -117,7 +116,7 @@ public class TaxpayerController {
     }
 
     @PatchMapping("/user/{userId}/documents/{documentId}/verify")
-    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR')")
+    @PreAuthorize("hasAnyRole('OFFICER','TAXPAYER','ADMINISTRATOR')")
     public ResponseEntity<TaxpayerDocumentResponseDto> updateDocumentStatus(
             @PathVariable Long userId,
             @PathVariable Long documentId,

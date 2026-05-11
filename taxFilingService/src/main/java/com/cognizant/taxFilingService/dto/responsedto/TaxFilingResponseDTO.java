@@ -13,6 +13,6 @@ public class TaxFilingResponseDTO {
     private String period;
     private BigDecimal amountDeclared;
     private String status;
-    private Long officerId; // <-- Make sure this is here!
+    private Long officerId;
     private Instant submittedDate;
 }
