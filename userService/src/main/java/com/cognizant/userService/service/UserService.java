@@ -59,6 +59,8 @@ public class UserService {
         user.setAddress(request.getAddress());
         user.setPanNumber(request.getPanNumber()); // Changed from setContactInfo
         user.setDob(request.getDob());             // Added DOB update support
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
 
         return userRepository.save(user);
     }
