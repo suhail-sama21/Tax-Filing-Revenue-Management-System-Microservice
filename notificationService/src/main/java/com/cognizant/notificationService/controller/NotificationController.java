@@ -31,7 +31,7 @@ public class NotificationController {
         notificationService.sendNotificationToUser(userId, request.getMessage(), request.getCategory());
         return ResponseEntity.ok("Notification sent successfully");
     }
-    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+//    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<NotificationResponse>> getUserNotifications(
             @PathVariable @Positive(message = "User ID must be a positive number") Long userId) {

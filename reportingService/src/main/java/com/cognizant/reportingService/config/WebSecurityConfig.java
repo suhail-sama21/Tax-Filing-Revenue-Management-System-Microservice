@@ -39,7 +39,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                                 .requestMatchers("/api/reports/payments/**", "/api/reports/revenue/**").hasAnyRole("MANAGER", "AUDITOR","INTERNAL")
-                                .requestMatchers("/api/reports/audits/**").hasAnyRole("AUDITOR", "ADMINISTRATOR","INTERNAL")
+                                .requestMatchers("/api/reports/audits/**").hasAnyRole("AUDITOR","MANAGER", "ADMINISTRATOR","INTERNAL")
                                 .requestMatchers("/api/reports/custom/download").hasAnyRole("ADMINISTRATOR", "MANAGER","INTERNAL")
                                 .anyRequest().authenticated()
 //
