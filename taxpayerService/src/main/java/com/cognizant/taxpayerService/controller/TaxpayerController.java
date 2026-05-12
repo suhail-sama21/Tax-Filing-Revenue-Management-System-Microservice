@@ -1,6 +1,7 @@
 package com.cognizant.taxpayerService.controller;
 
 import com.cognizant.taxpayerService.dto.*;
+import com.cognizant.taxpayerService.dto.TaxpayerPendingDocumentDto;
 import com.cognizant.taxpayerService.entity.Taxpayer;
 import com.cognizant.taxpayerService.service.TaxpayerProfileService;
 import jakarta.validation.Valid;
@@ -41,6 +42,13 @@ public class TaxpayerController {
         // Verify the authenticated user is accessing their own profile
         log.info("Get profile for userId: {}", userId);
         return ResponseEntity.ok(service.getFullTaxpayerProfile(userId));
+    }
+
+    @GetMapping("/pending-documents")
+    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR','INTERNAL')")
+    public ResponseEntity<java.util.List<TaxpayerPendingDocumentDto>> getTaxpayersWithPendingDocuments() {
+        log.info("Fetching pending taxpayer document summary for officers/admin/internal");
+        return ResponseEntity.ok(service.getTaxpayersWithPendingDocuments());
     }
 
     @PutMapping("/user/{userId}/profile")
@@ -89,14 +97,14 @@ public class TaxpayerController {
     }
 
     @GetMapping("/user/{userId}/documents")
-    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL','OFFICER')")
     public ResponseEntity<List<TaxpayerDocumentResponseDto>> getDocuments(@PathVariable Long userId) {
         // Verify the authenticated user is accessing their own documents
-        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!currentUserId.equals(service.getMailForUserID(userId))) {
-            log.warn("Unauthorized document access attempt: User {} tried to access documents for user {}", currentUserId, userId);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your own documents");
-        }
+//        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+//        if (!currentUserId.equals(service.getMailForUserID(userId))) {
+//            log.warn("Unauthorized document access attempt: User {} tried to access documents for user {}", currentUserId, userId);
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your own documents");
+//        }
 
         return ResponseEntity.ok(service.getDocuments(userId));
     }

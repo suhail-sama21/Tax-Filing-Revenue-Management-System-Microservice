@@ -27,7 +27,10 @@ public class PaymentController {
     public PaymentResponseDto makePayment(@Valid @RequestBody PaymentRequest request) {
         log.info("START: Initiating payment for Filing ID: {}", request.getFilingId());
         PaymentResponseDto response = paymentService.makePayment(
-                request.getFilingId(), request.getMethod(), request.getAmount(), request.getStatus());
+                request.getFilingId(),
+                request.getMethod(),
+                request.getAmount(),
+                request.getStatus());
         log.info("END: Payment processed | Payment ID: {} | Status: {}", response.getId(), response.getStatus());
         return response;
     }

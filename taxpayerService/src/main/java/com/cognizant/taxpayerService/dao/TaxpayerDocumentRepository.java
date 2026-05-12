@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TaxpayerDocumentRepository extends JpaRepository<TaxpayerDocument, Long> {
     List<TaxpayerDocument> findByTaxpayer(Taxpayer taxpayer);
+    List<TaxpayerDocument> findByVerificationStatusIn(List<String> verificationStatuses);
 }

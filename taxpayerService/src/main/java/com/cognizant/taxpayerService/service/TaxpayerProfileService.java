@@ -24,6 +24,8 @@ public interface TaxpayerProfileService {
 
     TaxpayerDocumentResponseDto updateDocumentStatus(Long userId, Long documentId, String newStatus);
 
+    java.util.List<com.cognizant.taxpayerService.dto.TaxpayerPendingDocumentDto> getTaxpayersWithPendingDocuments();
+
     String getTaxPayerType(Long id);
 
     String getMailForUserID(Long userId);
