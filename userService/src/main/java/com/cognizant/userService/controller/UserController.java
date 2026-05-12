@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -47,6 +49,13 @@ public class UserController {
     @PatchMapping("/{userId}/changePassword")
     public ResponseEntity<String> changePassword(@PathVariable Long userId,@RequestBody PasswordDto passwordDto){
         return userService.changePassword(userId, passwordDto);
+    }
+
+    // ... inside UserController class ...
+
+    @GetMapping("/ids")
+    public ResponseEntity<List<Long>> getAllUserIds() {
+        return ResponseEntity.ok(userService.getAllUserIds());
     }
 
 }
