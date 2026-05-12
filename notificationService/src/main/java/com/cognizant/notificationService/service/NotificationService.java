@@ -9,4 +9,5 @@ public interface NotificationService {
     void sendNotificationToUser(Long userId, String message, NotificationCategory category);
     List<NotificationResponse> getUserNotifications(Long userId);
     void markAsRead(Long notificationId, Long userId);
+    void broadcastNotification(String message, NotificationCategory category);
 }
