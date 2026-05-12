@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +50,10 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException("user not found with id:"+id));
+                // Use ResponseStatusException to force a 404 HTTP status
+                .orElseThrow(() -> new NoSuchElementException(
+                        "User not found with id: " + id
+                ));
     }
 
     public User updateUserProfile(Long id, UpdateUserProfileRequest request) {
@@ -90,4 +97,11 @@ public class UserService {
         }
         return ResponseEntity.ok("Password Changed Successfully");
     }
+    // ... inside UserService class ...
+
+    public List<Long> getAllUserIds() {
+        log.info("Fetching all user IDs from the database");
+        return userRepository.findAllUserIds();
+    }
+
 }

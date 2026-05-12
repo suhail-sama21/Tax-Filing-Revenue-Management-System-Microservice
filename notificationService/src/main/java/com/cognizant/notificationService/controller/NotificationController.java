@@ -47,4 +47,14 @@ public class NotificationController {
         notificationService.markAsRead(notificationId, userId);
         return ResponseEntity.ok("Notification marked as read");
     }
+    // ... inside NotificationController ...
+
+    // --- NEW: Broadcast Endpoint ---
+    @PostMapping("/broadcast")
+    public ResponseEntity<String> sendBroadcastNotification(
+            @Valid @RequestBody DirectNotificationRequest request) {
+
+        notificationService.broadcastNotification(request.getMessage(), request.getCategory());
+        return ResponseEntity.ok("Broadcast notification sent successfully to all users");
+    }
 }
