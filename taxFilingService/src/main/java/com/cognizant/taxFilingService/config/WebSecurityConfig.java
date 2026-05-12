@@ -41,7 +41,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/filings/submit").hasAnyRole("TAXPAYER","INTERNAL")
                                 .requestMatchers("/api/taxpayers/**").hasAnyRole("TAXPAYER","INTERNAL")
                                 .requestMatchers("/api/filings/taxpayer/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
-                                .requestMatchers("/api/filings/*/status").hasAnyRole("OFFICER","INTERNAL")
+                                .requestMatchers("/api/filings/*/status").hasAnyRole("TAXPAYER","OFFICER","INTERNAL")
                                 .requestMatchers("/api/documents/upload").hasAnyRole("TAXPAYER","INTERNAL")
                                 .requestMatchers("/api/documents/filing/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
                                 .anyRequest().authenticated()
