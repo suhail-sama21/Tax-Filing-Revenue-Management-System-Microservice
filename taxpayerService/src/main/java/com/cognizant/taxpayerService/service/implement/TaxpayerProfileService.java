@@ -4,8 +4,10 @@ import com.cognizant.taxpayerService.client.UserServiceClient;
 import com.cognizant.taxpayerService.dao.TaxpayerDocumentRepository;
 import com.cognizant.taxpayerService.dao.TaxpayerRepository;
 import com.cognizant.taxpayerService.dto.*;
+import com.cognizant.taxpayerService.dto.TaxpayerPendingDocumentDto;
 import com.cognizant.taxpayerService.entity.Taxpayer;
 import com.cognizant.taxpayerService.entity.TaxpayerDocument;
+import com.cognizant.taxpayerService.entity.entityEnum.VerificationStatus;
 import com.cognizant.taxpayerService.exception.GlobalExceptionHandler.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,10 @@ import org.springframework.web.server.ResponseStatusException;
 import com.cognizant.taxpayerService.dto.User;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -174,14 +179,60 @@ public class TaxpayerProfileService implements com.cognizant.taxpayerService.ser
         TaxpayerDocument document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new DocumentNotFoundException("Document not found with ID: " + documentId));
 
-        if (!document.getTaxpayer().getUserId().equals(taxpayer.getUserId())) {
-            throw new DocumentOwnershipException("Document does not belong to this taxpayer");
-        }
+//        if (!document.getTaxpayer().getUserId().equals(taxpayer.getUserId())) {
+//            throw new DocumentOwnershipException("Document does not belong to this taxpayer");
+//        }
 
         document.setVerificationStatus(newStatus);
         TaxpayerDocument updatedDocument = documentRepository.save(document);
 
         return convertToDto(updatedDocument);
+    }
+
+    public List<TaxpayerPendingDocumentDto> getTaxpayersWithPendingDocuments() {
+        List<String> notVerifiedStatuses = List.of(
+                VerificationStatus.Pending.name(),
+                VerificationStatus.Rejected.name()
+        );
+
+        List<TaxpayerDocument> documents = documentRepository.findByVerificationStatusIn(notVerifiedStatuses);
+        if (documents.isEmpty()) {
+            return List.of();
+        }
+
+        // Simple map to track aggregated status per user
+        Map<Long, String> userStatusMap = new HashMap<>();
+        for (TaxpayerDocument doc : documents) {
+            Long userId = doc.getTaxpayer().getUserId();
+            String currentStatus = userStatusMap.get(userId);
+            if (currentStatus == null || !VerificationStatus.Pending.name().equals(currentStatus)) {
+                // If no status or not Pending, set to current doc status
+                userStatusMap.put(userId, doc.getVerificationStatus());
+            }
+            // If already Pending, keep it Pending
+        }
+
+        List<TaxpayerPendingDocumentDto> result = new ArrayList<>();
+        for (Map.Entry<Long, String> entry : userStatusMap.entrySet()) {
+            Long userId = entry.getKey();
+            String status = entry.getValue();
+            UserDto userDto;
+            try {
+                userDto = userServiceClient.getUserById(userId);
+            } catch (Exception e) {
+                log.error("Unable to resolve user details for pending taxpayer user ID: {}. Skipping this user.", userId, e);
+                continue; // Skip this user instead of failing the whole request
+            }
+
+            result.add(TaxpayerPendingDocumentDto.builder()
+                    .userId(userDto.getId())
+                    .name(userDto.getName())
+                    .panNumber(userDto.getPanNumber())
+                    .verificationStatus(status)
+                    .build());
+        }
+
+        return result;
     }
     public String getMailForUserID(Long userId){
         return userServiceClient.getUserById(userId).getEmail();
