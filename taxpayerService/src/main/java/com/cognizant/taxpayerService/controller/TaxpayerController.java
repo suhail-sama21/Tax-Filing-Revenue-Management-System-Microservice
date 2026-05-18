@@ -44,13 +44,6 @@ public class TaxpayerController {
         return ResponseEntity.ok(service.getFullTaxpayerProfile(userId));
     }
 
-    @GetMapping("/pending-documents")
-    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR','INTERNAL')")
-    public ResponseEntity<java.util.List<TaxpayerPendingDocumentDto>> getTaxpayersWithPendingDocuments() {
-        log.info("Fetching pending taxpayer document summary for officers/admin/internal");
-        return ResponseEntity.ok(service.getTaxpayersWithPendingDocuments());
-    }
-
     @PutMapping("/user/{userId}/profile")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     public ResponseEntity<TaxpayerResponse> updateProfile(
@@ -99,13 +92,6 @@ public class TaxpayerController {
     @GetMapping("/user/{userId}/documents")
     @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL','OFFICER')")
     public ResponseEntity<List<TaxpayerDocumentResponseDto>> getDocuments(@PathVariable Long userId) {
-        // Verify the authenticated user is accessing their own documents
-//        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-//        if (!currentUserId.equals(service.getMailForUserID(userId))) {
-//            log.warn("Unauthorized document access attempt: User {} tried to access documents for user {}", currentUserId, userId);
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your own documents");
-//        }
-
         return ResponseEntity.ok(service.getDocuments(userId));
     }
 
@@ -132,6 +118,13 @@ public class TaxpayerController {
         // Only OFFICER and ADMINISTRATOR roles can verify documents
         log.info("Document verification by officer/admin for document {} of user {}", documentId, userId);
         return ResponseEntity.ok(service.updateDocumentStatus(userId, documentId, request.getStatus()));
+    }
+
+    @GetMapping("/pending-documents")
+    @PreAuthorize("hasAnyRole('OFFICER','ADMINISTRATOR','INTERNAL')")
+    public ResponseEntity<java.util.List<TaxpayerPendingDocumentDto>> getTaxpayersWithPendingDocuments() {
+        log.info("Fetching pending taxpayer document summary for officers/admin/internal");
+        return ResponseEntity.ok(service.getTaxpayersWithPendingDocuments());
     }
 
     @PatchMapping("/{userId}/changePassword")

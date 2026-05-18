@@ -20,6 +20,7 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
+        <module name="service-registry (1)" />
         <module name="authenticationService" />
         <module name="paymentService" />
         <module name="notificationService" />
@@ -59,6 +60,7 @@
       <module name="reportingService" options="-parameters" />
       <module name="revenueService" options="-parameters" />
       <module name="service-registry" options="-parameters" />
+      <module name="service-registry (1)" options="-parameters" />
       <module name="springConfig" options="-parameters" />
       <module name="taxFilingService" options="-parameters" />
       <module name="taxpayerService" options="-parameters" />

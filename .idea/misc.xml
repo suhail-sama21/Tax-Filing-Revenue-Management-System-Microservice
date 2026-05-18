@@ -19,6 +19,7 @@
         <option value="$PROJECT_DIR$/apiGateway/pom.xml" />
         <option value="$PROJECT_DIR$/authenticationService/pom.xml" />
         <option value="$PROJECT_DIR$/springConfig/pom.xml" />
+        <option value="$PROJECT_DIR$/service-registry/service-registry/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

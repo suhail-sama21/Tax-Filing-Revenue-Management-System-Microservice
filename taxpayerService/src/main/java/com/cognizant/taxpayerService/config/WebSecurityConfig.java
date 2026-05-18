@@ -23,6 +23,7 @@ public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final HandlerExceptionResolver resolver;
+
     public WebSecurityConfig(JwtAuthFilter jwtAuthFilter,
                              @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -50,29 +51,4 @@ public class WebSecurityConfig {
         log.info("Security filter chain configured successfully for Taxpayer Service");
         return httpSecurity.build();
     }
-//    @Bean
-//    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-//        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-//
-//        // Allow your Angular frontend
-//        configuration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
-//
-//        // Allow standard HTTP methods
-//        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//
-//        // Allow all headers (including Authorization for your JWT)
-//        configuration.setAllowedHeaders(java.util.List.of("*"));
-//
-//        // Allow credentials (important if you use cookies or specific auth headers)
-//        configuration.setAllowCredentials(true);
-//
-//        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
-}
-
+    }
