@@ -70,30 +70,44 @@ public class ReportServiceImpl implements ReportService {
         csv.append("Report Type:,").append(reportType).append("\n");
         csv.append("Date Range:,").append(startDate).append(",to,").append(endDate).append("\n\n");
 
+        // --- COMPLIANCE DATA ---
         if (metrics.contains("Compliance")) {
             csv.append("--- COMPLIANCE DATA ---\n");
             csv.append("Compliance ID,Taxpayer ID,Type,Result,Date,Notes\n");
 
-            List<ComplianceDto> compliance = complianceClient.getAllCompliance().stream()
-                    .filter(c -> !c.getDate().isBefore(startDate) && !c.getDate().isAfter(endDate))
-                    .toList();
+            try {
+                List<ComplianceDto> allCompliance = complianceClient.getAllCompliance();
 
-            if (compliance.isEmpty()) {
-                csv.append("No compliance records found for this period.\n");
-            } else {
-                for (ComplianceDto c : compliance) {
-                    String safeNotes = c.getNotes() != null ? c.getNotes().replace(",", " ") : "N/A";
-                    csv.append(c.getId()).append(",")
-                            .append(c.getTaxpayerId()).append(",")
-                            .append(c.getType()).append(",")
-                            .append(c.getResult()).append(",")
-                            .append(c.getDate()).append(",")
-                            .append(safeNotes).append("\n");
+                if (allCompliance == null || allCompliance.isEmpty()) {
+                    csv.append("No compliance records found in the database.\n");
+                } else {
+                    // SAFE FILTER: Added c.getDate() != null to prevent NullPointerException!
+                    List<ComplianceDto> compliance = allCompliance.stream()
+                            .filter(c -> c.getDate() != null && !c.getDate().isBefore(startDate) && !c.getDate().isAfter(endDate))
+                            .toList();
+
+                    if (compliance.isEmpty()) {
+                        csv.append("No compliance records found for this date range.\n");
+                    } else {
+                        for (ComplianceDto c : compliance) {
+                            String safeNotes = c.getNotes() != null ? c.getNotes().replace(",", " ") : "N/A";
+                            csv.append(c.getId()).append(",")
+                                    .append(c.getTaxpayerId()).append(",")
+                                    .append(c.getType()).append(",")
+                                    .append(c.getResult()).append(",")
+                                    .append(c.getDate()).append(",")
+                                    .append(safeNotes).append("\n");
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                // Safeguard if ComplianceService is down or throws 403
+                csv.append("Error: Could not retrieve compliance data. (").append(e.getMessage()).append(")\n");
             }
             csv.append("\n");
         }
 
+        // --- REVENUE DATA ---
         if (metrics.contains("Revenue")) {
             csv.append("--- REVENUE DATA ---\n");
             csv.append("Transaction ID,Taxpayer ID,Amount,Status,Date,Method\n");
@@ -102,12 +116,15 @@ public class ReportServiceImpl implements ReportService {
                 List<PaymentResponseDto> payments = paymentClient.getAllPayments();
 
                 if (payments == null || payments.isEmpty()) {
-                    csv.append("No revenue records found.\n");
+                    csv.append("No revenue records found in the database.\n");
                 } else {
+                    boolean foundRevenue = false;
                     for (PaymentResponseDto p : payments) {
-                        if (p.getDate() != null) { // Add this check
+                        if (p.getDate() != null) { // Null check
                             LocalDate pDate = LocalDate.ofInstant(p.getDate(), ZoneId.systemDefault());
+
                             if (!pDate.isBefore(startDate) && !pDate.isAfter(endDate)) {
+                                foundRevenue = true;
                                 csv.append(p.getId()).append(",")
                                         .append(p.getTaxpayerId()).append(",")
                                         .append(p.getAmount()).append(",")
@@ -117,12 +134,20 @@ public class ReportServiceImpl implements ReportService {
                             }
                         }
                     }
+                    if (!foundRevenue) {
+                        csv.append("No revenue records found for this date range.\n");
+                    }
                 }
             } catch (Exception e) {
-                csv.append("Error: Could not retrieve revenue data from payment-service.\n");
+                csv.append("Error: Could not retrieve revenue data from payment-service. (").append(e.getMessage()).append(")\n");
             }
         }
 
         return csv.toString().getBytes();
+    }
+
+    @Override
+    public List<PaymentResponseDto> getAllPayments() {
+        return paymentClient.getAllPayments();
     }
 }

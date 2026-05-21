@@ -27,7 +27,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:4200"));
 
         // Allow the HTTP methods your app needs
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         // Allow necessary headers
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));

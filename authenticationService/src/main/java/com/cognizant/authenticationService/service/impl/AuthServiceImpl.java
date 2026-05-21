@@ -4,6 +4,7 @@ import com.cognizant.authenticationService.dto.AuthRequestDTO;
 import com.cognizant.authenticationService.dto.AuthResponseDTO;
 import com.cognizant.authenticationService.dto.RegisterResponse;
 import com.cognizant.authenticationService.dto.UserDTO;
+import com.cognizant.authenticationService.feignclient.TaxpayerClient;
 import com.cognizant.authenticationService.feignclient.UserClient;
 import com.cognizant.authenticationService.service.AuthService;
 import com.cognizant.authenticationService.util.JwtUtil;
@@ -23,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil authUtil;
     private final UserClient userClient;
+    private final TaxpayerClient taxpayerClient;
     @Override
     public AuthResponseDTO login(AuthRequestDTO dto) {
         Authentication auth = authenticationManager.authenticate(
@@ -35,10 +37,25 @@ public class AuthServiceImpl implements AuthService {
                 .next()
                 .getAuthority();
 
-        String token = authUtil.generateToken(userDetails.getUsername(),role);
-        log.info("Generated); JWT token for user: {}", dto.getEmail());
+        String token = authUtil.generateToken(userDetails.getUsername(), role);
+        log.info("Generated JWT token for user: {}", dto.getEmail());
 
-        return new AuthResponseDTO(token);
+        String profileStatus = "not-created";
+        if (role.equals("ROLE_TAXPAYER")) {
+            try {
+                log.info("Calling taxpayer client to create a taxpayer initial profile for email: {}", dto.getEmail());
+                taxpayerClient.createProfile(dto.getEmail(), "Citizen");
+                profileStatus = "created";
+                log.info("Taxpayer profile created successfully for email: {}", dto.getEmail());
+            } catch (Exception e) {
+                log.warn("Error creating taxpayer profile for email: {}, error: {}", dto.getEmail(), e.getMessage());
+                profileStatus = "error";
+            }
+        }
+
+        return AuthResponseDTO.builder()
+                .token(token)
+                .build();
     }
 
     @Override

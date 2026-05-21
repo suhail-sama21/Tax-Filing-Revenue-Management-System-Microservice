@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,8 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                // RIGHT
+                .cors(Customizer.withDefaults())
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
@@ -47,6 +50,26 @@ public class WebSecurityConfig {
         log.info("Security filter chain configured successfully for Taxpayer Service");
         return httpSecurity.build();
     }
+//    @Bean
+//    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+//        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+//
+//        // Allow your Angular frontend
+//        configuration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
+//
+//        // Allow standard HTTP methods
+//        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//
+//        // Allow all headers (including Authorization for your JWT)
+//        configuration.setAllowedHeaders(java.util.List.of("*"));
+//
+//        // Allow credentials (important if you use cookies or specific auth headers)
+//        configuration.setAllowCredentials(true);
+//
+//        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 //    @Bean
 //    public PasswordEncoder passwordEncoder(){
 //        return new BCryptPasswordEncoder();

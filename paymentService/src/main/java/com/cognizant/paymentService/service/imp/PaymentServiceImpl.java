@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             filing = taxFilingClient.getFilingById(filingId);
         } catch (Exception e) {
-            throw new RuntimeException("Filing ID " + filingId + " not found in Tax Filing Service");
+            throw new NoSuchElementException("Filing ID " + filingId + " not found");
         }
 
         // 2. Save Payment with BOTH IDs
@@ -81,10 +82,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponseDto retryPayment(Long oldPaymentId, PaymentMethod newMethod) {
         Payment oldPayment = paymentRepository.findById(oldPaymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new NoSuchElementException("Payment not found with ID: " + oldPaymentId));
 
         if (oldPayment.getStatus() != StatusBasic.Failed) {
-            throw new RuntimeException("Only failed payments can be retried");
+            throw new IllegalArgumentException("Only failed payments can be retried");
         }
 
         // Make a new payment attempt
@@ -114,7 +115,7 @@ public class PaymentServiceImpl implements PaymentService {
                 PaymentMethod paymentMethod = PaymentMethod.valueOf(method.toUpperCase());
                 payments = paymentRepository.findByMethod(paymentMethod);
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Invalid Payment Method: '" + method);
+                throw new IllegalArgumentException("Invalid Payment Method: " + method);
             }
         } else {
             payments = paymentRepository.findAll();
@@ -151,7 +152,7 @@ public class PaymentServiceImpl implements PaymentService {
             records = records.stream()
                     .filter(r -> {
                         try {
-                            var taxpayer = taxpayerClient.getTaxpayerById(r.getTaxpayerId());
+                            var taxpayer = taxpayerClient.getTaxpayerTypeById(r.getTaxpayerId());
                             return taxpayerType.equalsIgnoreCase(taxpayer);
                         } catch (Exception e) {
                             return false;
@@ -185,7 +186,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponseDto getPaymentById(Long paymentId) {
         log.info("Fetching payment by ID: {}", paymentId);
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new NoSuchElementException("Payment not found with ID: " + paymentId));
         return mapToDto(payment);
     }
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,6 +28,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .cors(Customizer.withDefaults())
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
@@ -39,7 +41,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/filings/submit").hasAnyRole("TAXPAYER","INTERNAL")
                                 .requestMatchers("/api/taxpayers/**").hasAnyRole("TAXPAYER","INTERNAL")
                                 .requestMatchers("/api/filings/taxpayer/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
-                                .requestMatchers("/api/filings/*/status").hasAnyRole("OFFICER","INTERNAL")
+                                .requestMatchers("/api/filings/*/status").hasAnyRole("TAXPAYER","OFFICER","INTERNAL")
                                 .requestMatchers("/api/documents/upload").hasAnyRole("TAXPAYER","INTERNAL")
                                 .requestMatchers("/api/documents/filing/**").hasAnyRole("TAXPAYER", "OFFICER","INTERNAL")
                                 .anyRequest().authenticated()

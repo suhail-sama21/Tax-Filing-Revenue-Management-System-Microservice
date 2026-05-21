@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class NotificationController {
         notificationService.sendNotificationToUser(userId, request.getMessage(), request.getCategory());
         return ResponseEntity.ok("Notification sent successfully");
     }
-
+    @PreAuthorize("hasAnyRole('TAXPAYER','INTERNAL')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<NotificationResponse>> getUserNotifications(
             @PathVariable @Positive(message = "User ID must be a positive number") Long userId) {
@@ -45,5 +46,15 @@ public class NotificationController {
 
         notificationService.markAsRead(notificationId, userId);
         return ResponseEntity.ok("Notification marked as read");
+    }
+    // ... inside NotificationController ...
+
+    // --- NEW: Broadcast Endpoint ---
+    @PostMapping("/broadcast")
+    public ResponseEntity<String> sendBroadcastNotification(
+            @Valid @RequestBody DirectNotificationRequest request) {
+
+        notificationService.broadcastNotification(request.getMessage(), request.getCategory());
+        return ResponseEntity.ok("Broadcast notification sent successfully to all users");
     }
 }

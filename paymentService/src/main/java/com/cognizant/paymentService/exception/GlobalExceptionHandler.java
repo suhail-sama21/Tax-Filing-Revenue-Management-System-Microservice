@@ -1,67 +1,56 @@
-package com.cognizant.authenticationService.exception;
+package com.cognizant.paymentService.exception;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
-@Slf4j
-@RequiredArgsConstructor
 public class GlobalExceptionHandler {
-    private final ObjectMapper objectMapper;
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<Object> handleFeignException(FeignException e) {
+        int status = e.status() == -1 ? 500 : e.status();
+        String rawBody = e.contentUTF8();
 
-    @ExceptionHandler(CustomDownStreamException.class)
-    public ResponseEntity<Object> handleCustomDownstream(CustomDownStreamException e) {
         try {
-            String rawJson = e.getCleanJson();
-            log.info(rawJson);
-            if (rawJson == null || rawJson.isBlank()) {
-                return ResponseEntity.status(e.getStatus()).body(Map.of("message", "Downstream error occurred"));
+            if (rawBody != null && rawBody.trim().startsWith("{")) {
+                // Unwrap the JSON if Feign added diagnostic brackets
+                int lastOpen = rawBody.lastIndexOf("[");
+                int lastClose = rawBody.lastIndexOf("]");
+                String jsonPart = (lastOpen != -1 && lastClose > lastOpen)
+                        ? rawBody.substring(lastOpen + 1, lastClose)
+                        : rawBody;
+
+                // Use readValue to avoid the metadata "boolean flags" issue
+                Map<String, Object> downstreamError = new ObjectMapper().readValue(jsonPart, Map.class);
+                return ResponseEntity.status(status).body(downstreamError);
             }
-
-            // FIX: Read the JSON into a standard Java Object/Map instead of a JsonNode
-            Object body = objectMapper.readValue(rawJson, Object.class);
-
-            return ResponseEntity.status(e.getStatus()).body(body);
         } catch (Exception ex) {
-            log.error("Failed to parse JSON: {}", ex.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(e.getCleanJson());
-        }
-    }
-
-    @ExceptionHandler(org.springframework.security.authentication.InternalAuthenticationServiceException.class)
-    public ResponseEntity<Object> handleInternalAuthServiceException(InternalAuthenticationServiceException ex) {
-        log.error("Internal Auth Service Exception caught: {}", ex.getMessage());
-
-        // 1. Check if the "cause" of this error is our CustomDownStreamException
-        if (ex.getCause() instanceof CustomDownStreamException downstreamEx) {
-            log.info("Found CustomDownStreamException inside wrapper, delegating...");
-            return handleCustomDownstream(downstreamEx);
+            // Fallback to your existing logic if parsing fails
         }
 
-        // 2. Otherwise, treat it as a Bad Credentials error
-        return handleBadCredentials(new BadCredentialsException("Invalid email or password"));
+        return ResponseEntity.status(status).body(buildBody(HttpStatus.valueOf(status), "Downstream Error", rawBody));
     }
-
+    private Map<String, Object> buildBody(HttpStatus status, String error, String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", status.value());
+        body.put("error", error);
+        body.put("message", message != null ? message : "Unexpected error");
+        return body;
+    }
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<Map<String, String>> handleTokenExpired(ExpiredJwtException ex) {
         Map<String, String> body = new HashMap<>();
@@ -81,7 +70,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now());
         body.put("status", 401);
@@ -110,35 +99,39 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleRuntime(RuntimeException ex) {
-        log.info("INTERCEPTED: RuntimeException");
-
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
         String message = ex.getMessage();
-
-        // 3. Normal business logic for local exceptions
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now());
-        int status = 500;
-        String error = "Internal Server Error";
 
+        // Parse message to determine appropriate response
         if (message != null) {
-            if (message.contains("already exists")) {
-                status = 409;
-                error = "Conflict";
-            } else if (message.contains("does not belong")) {
-                status = 404;
-                error = "Not Found";
-            } else if (message.contains("Unauthorized") || message.contains("401")) {
-                status = 401;
-                error = "Unauthorized";
+            if (message.contains("already exists") || message.contains("Account already exists")) {
+                body.put("status", 409);
+                body.put("error", "Conflict");
+            } else if (message.contains("does not belong") || message.contains("Document does not exist")) {
+                body.put("status", 404);
+                body.put("error", "Not Found");
+            } else if (message.contains("can only be deleted if") || message.contains("Cannot update")) {
+                body.put("status", 403);
+                body.put("error", "Forbidden");
+            } else if (message.contains("File URI is required") || message.contains("Unable to generate")) {
+                body.put("status", 500);
+                body.put("error", "Internal Server Error");
+            } else {
+                body.put("status", 500);
+                body.put("error", "Internal Server Error");
             }
+        } else {
+            body.put("status", 500);
+            body.put("error", "Internal Server Error");
         }
 
-        body.put("status", status);
-        body.put("error", error);
         body.put("message", message);
-
-        return ResponseEntity.status(status).body(body);
+        return ResponseEntity.status(body.get("status").equals(409) ? HttpStatus.CONFLICT :
+                body.get("status").equals(404) ? HttpStatus.NOT_FOUND :
+                        body.get("status").equals(403) ? HttpStatus.FORBIDDEN :
+                                HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -161,3 +154,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 }
+
